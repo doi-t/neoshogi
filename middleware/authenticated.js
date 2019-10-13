@@ -1,6 +1,6 @@
 export default function({ store, route, redirect }) {
   const user = store.state.users.user
-  const blockedRoute = /\/game\/*/g
+  const blockedRoute = /\/(game|mypage)\/*/g
   const homeRoute = "/"
 
   if (!user && route.path.match(blockedRoute)) {
