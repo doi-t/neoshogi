@@ -18,7 +18,7 @@
     "copy:nuxt": "cp -R functions/.nuxt/dist/ public/_nuxt/",
     "copy:static": "cp src/static/* public/",
     "start:firebase": "firebase serve --only functions,hosting",
-    "deploy": "firebase deploy --only functions,hosting"
+    "deploy": "firebase deploy --only functions,hosting:neoshogi"
   },
   "dependencies": {
     "@nuxtjs/dotenv": "^1.4.1",
