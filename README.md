@@ -12,8 +12,10 @@ $ yarn install
 $ yarn dev
 
 # build and test firebase project locally
-$ yarn build:firebase && yarn start:firebase
+$ yarn build:staticAndServer
+$ yarn start:server
+$ yarn start:firebase
 
 # build and deploy firebase project
-$ yarn build:firebase && yarn deploy
+$ yarn build:staticAndServer && yarn deploy
 ```

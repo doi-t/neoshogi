@@ -6,7 +6,10 @@
     "rewrites": [
       {
         "source": "**",
-        "function": "neoshogi"
+        "run": {
+          "serviceId": "neoshogi",
+          "region": "asia-northeast1"
+        }
       }
     ]
   }
