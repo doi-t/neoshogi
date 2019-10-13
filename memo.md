@@ -115,4 +115,7 @@ $ nodenv install 10.15.3
 $ nodenv global 10.15.3
 $ node -v
 v10.15.3
+$ yarn build # nuxt build
+$ cp -R functions/.nuxt/dist/ public/_nuxt
+$ cp src/static/* public/
 ```

@@ -6,9 +6,19 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon src/server/index.js --watch server",
-    "build": "nuxt build",
     "start": "cross-env NODE_ENV=production node src/server/index.js",
-    "generate": "nuxt generate"
+    "generate": "nuxt generate",
+    "build": "nuxt build",
+    "build:firebase": "yarn clean && yarn build && yarn copy && cd functions && yarn",
+    "clean": "yarn clean:public && yarn clean:functions && yarn clean:static",
+    "clean:functions": "rimraf functions/node_modules && rimraf functions/.nuxt",
+    "clean:public": "rimraf \"public/**/*.*!(md)\" && rimraf public/_nuxt",
+    "clean:static": "rimraf src/static/sw.js",
+    "copy": "yarn copy:nuxt && yarn copy:static",
+    "copy:nuxt": "cp -R functions/.nuxt/dist/ public/_nuxt/",
+    "copy:static": "cp src/static/* public/",
+    "start:firebase": "firebase serve --only functions,hosting",
+    "deploy": "firebase deploy --only functions,hosting"
   },
   "dependencies": {
     "@nuxtjs/dotenv": "^1.4.1",

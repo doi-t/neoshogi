@@ -5,7 +5,7 @@
     "rewrites": [
       {
         "source": "**",
-        "function": "nuxtssr"
+        "function": "neoshogi"
       }
     ]
   }
