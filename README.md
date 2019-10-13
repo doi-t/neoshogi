@@ -4,19 +4,16 @@
 
 ## Build Setup
 
-``` bash
+```bash
 # install dependencies
 $ yarn install
 
 # serve with hot reload at localhost:3000
 $ yarn dev
 
-# build for production and launch server
-$ yarn build
-$ yarn start
+# build and test firebase project locally
+$ yarn build:firebase && yarn start:firebase
 
-# generate static project
-$ yarn generate
+# build and deploy firebase project
+$ yarn build:firebase && yarn deploy
 ```
-
-For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
