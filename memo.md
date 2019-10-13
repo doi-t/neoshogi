@@ -108,3 +108,11 @@ i  Writing project information to .firebaserc...
 
 ✔  Firebase initialization complete!
 ```
+
+```
+$ anyenv install nodenv
+$ nodenv install 10.15.3
+$ nodenv global 10.15.3
+$ node -v
+v10.15.3
+```
