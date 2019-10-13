@@ -1,4 +1,5 @@
 Init the project.
+
 ```
 $ yarn create nuxt-app .
 yarn create v1.19.0
@@ -42,4 +43,68 @@ create-nuxt-app v2.11.1
 	yarn start
 
 ✨  Done in 987.74s.
+```
+
+```
+$ firebase init
+
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /Users/doi-t/github/neoshogi
+
+? Which Firebase CLI features do you want to set up for this folder? Press Space to select features,
+ then Enter to confirm your choices. Functions: Configure and deploy Cloud Functions, Hosting: Confi
+gure and deploy Firebase Hosting sites
+
+=== Project Setup
+
+First, let's associate this project directory with a Firebase project.
+You can create multiple project aliases by running firebase use --add,
+but for now we'll just set up a default project.
+
+? Please select an option: Use an existing project
+? Select a default Firebase project for this directory: doi-t-alpha (doi-t-alpha)
+i  Using project doi-t-alpha (doi-t-alpha)
+
+=== Functions Setup
+
+A functions directory will be created in your project with a Node.js
+package pre-configured. Functions can be deployed with firebase deploy.
+
+? What language would you like to use to write Cloud Functions? JavaScript
+? Do you want to use ESLint to catch probable bugs and enforce style? No
+✔  Wrote functions/package.json
+✔  Wrote functions/index.js
+✔  Wrote functions/.gitignore
+? Do you want to install dependencies with npm now? Yes
+
+> protobufjs@6.8.8 postinstall /Users/doi-t/github/neoshogi/functions/node_modules/protobufjs
+> node scripts/postinstall
+
+npm notice created a lockfile as package-lock.json. You should commit this file.
+added 236 packages from 180 contributors and audited 667 packages in 23.432s
+found 0 vulnerabilities
+
+
+=== Hosting Setup
+
+Your public directory is the folder (relative to your project directory) that
+will contain Hosting assets to be uploaded with firebase deploy. If you
+have a build process for your assets, use your build's output directory.
+
+? What do you want to use as your public directory? public
+? Configure as a single-page app (rewrite all urls to /index.html)? No
+✔  Wrote public/404.html
+✔  Wrote public/index.html
+
+i  Writing configuration info to firebase.json...
+i  Writing project information to .firebaserc...
+
+✔  Firebase initialization complete!
 ```
