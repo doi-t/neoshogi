@@ -119,3 +119,11 @@ $ yarn build # nuxt build
 $ cp -R functions/.nuxt/dist/ public/_nuxt
 $ cp src/static/* public/
 ```
+
+If you add `hosting.site` to `firebase.json` for custom domain, you have to set up Sign in method in Firebase Auth.
+
+> "This domain (neoshogi.firebaseapp.com) is not authorized to run this operation. Add it to the OAuth redirect domains list in the Firebase console -> Auth section -> Sign in method tab."
+
+In addition to above config, you need to update `Authorized JavaScript origins` and `Authorized redirect URLs` in Google APIs console as the error page that you will encounter through the first sign in attempt suggests.
+
+> The redirect URI in the request, https://<site name>.firebaseapp.com/\_\_/auth/handler, does not match the ones authorized for the OAuth client. To update the authorized redirect URIs, visit: https://console.developers.google.com/apis/credentials/oauthclient/.....
