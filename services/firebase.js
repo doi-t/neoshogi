@@ -1,5 +1,5 @@
-import firebase from "firebase/app"
-import "firebase/auth"
+import firebase from "firebase/app";
+import "firebase/auth";
 
 const config = {
   apiKey: process.env.NUXT_ENV_API_KEY,
@@ -9,8 +9,8 @@ const config = {
   storageBucket: process.env.NUXT_ENV_STORAGE_BUCKET,
   messagingSenderId: process.env.NUXT_ENV_MESSAGE_SENDER_ID,
   appId: process.env.NUXT_ENV_APP_ID
-}
+};
 
-!firebase.apps.length ? firebase.initializeApp(config) : ""
+!firebase.apps.length ? firebase.initializeApp(config) : "";
 
-export const auth = firebase.auth()
+export const auth = firebase.auth();
