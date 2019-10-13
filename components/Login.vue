@@ -6,8 +6,9 @@
       </v-card-title>
       <v-card-text>
         <v-form>
-          <v-text-field label="Username" prepend-icon="mdi-account-circle" />
+          <v-text-field v-model="account.email" label="Username" prepend-icon="mdi-account-circle" />
           <v-text-field
+            v-model="account.password"
             :type="showPassword ? 'text' : 'password'"
             label="Password"
             prepend-icon="mdi-lock"
@@ -16,11 +17,14 @@
           />
         </v-form>
       </v-card-text>
+      <v-card-text v-if="isError">
+        <p>{{ errMsg }}</p>
+      </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
         <v-btn color="success">Register</v-btn>
         <v-spacer></v-spacer>
-        <v-btn color="info">Login</v-btn>
+        <v-btn color="info" @click="login" type="submit">Login</v-btn>
       </v-card-actions>
     </v-card>
   </v-container>
@@ -29,9 +33,32 @@
 <script>
 export default {
   name: 'Login',
-  data() {
-    return {
-      showPassword: false
+  data: () => ({
+    account: {
+      email: "",
+      password: ""
+    },
+    isError: false,
+    errMsg: "",
+    showPassword: false
+  }),
+  methods: {
+    login(e) {
+      e.preventDefault();
+      this.$store
+        .dispatch("users/login", this.account)
+        .then(() => {
+          this.$router.push("/mypage")
+        })
+        .catch(error => {
+          console.log(error)
+          this.isError = true
+          this.errMsg = error.code
+
+          setTimeout(() => {
+            this.isError = false
+          }, 5000)
+        })
     }
   }
 }

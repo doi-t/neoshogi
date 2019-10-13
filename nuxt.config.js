@@ -1,4 +1,5 @@
 import colors from 'vuetify/es5/util/colors'
+require("dotenv").config();
 
 export default {
   mode: 'universal',
@@ -31,6 +32,12 @@ export default {
   */
   plugins: [
   ],
+  /**
+   * Router settings
+   */
+  router: {
+    middleware: ["authenticated"]
+  },
   /*
   ** Nuxt.js dev-modules
   */
