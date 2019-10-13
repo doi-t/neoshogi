@@ -5,18 +5,21 @@
   "author": "Toshiya Doi",
   "private": true,
   "scripts": {
-    "dev": "nuxt",
+    "dev": "cross-env NODE_ENV=development nodemon src/server/index.js --watch server",
     "build": "nuxt build",
-    "start": "nuxt start",
+    "start": "cross-env NODE_ENV=production node src/server/index.js",
     "generate": "nuxt generate"
   },
   "dependencies": {
     "@nuxtjs/dotenv": "^1.4.1",
+    "consola": "^2.10.1",
     "cookieparser": "^0.1.0",
     "cross-env": "^6.0.3",
+    "express": "^4.17.1",
     "firebase": "^7.1.0",
     "js-cookie": "^2.2.1",
     "jwt-decode": "^2.2.0",
+    "nodemon": "^1.19.3",
     "nuxt": "^2.0.0"
   },
   "devDependencies": {
