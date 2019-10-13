@@ -1,15 +1,10 @@
 {
   "name": "functions",
-  "description": "Cloud Functions for Firebase",
+  "description": "Cloud Run for Firebase Hosting",
+  "main": "index.js",
   "scripts": {
-    "serve": "firebase serve --only functions",
-    "shell": "firebase functions:shell",
-    "start": "npm run shell",
-    "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
-  },
-  "engines": {
-    "node": "10"
+    "start": "node index.js",
+    "deploy": "gcloud beta run deploy neoshogi --project doi-t-alpha --image gcr.io/doi-t-alpha/neoshogi --region asia-northeast1 --platform managed --allow-unauthenticated"
   },
   "dependencies": {
     "firebase-admin": "^8.0.0",

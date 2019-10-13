@@ -1,4 +1,3 @@
-const functions = require("firebase-functions");
 const { Nuxt } = require("nuxt");
 const express = require("express");
 
@@ -21,6 +20,8 @@ const readyPromise = nuxt
   });
 
 async function handleRequest(req, res) {
+  console.log(`Received a request: ${req}`);
+  console.log(req);
   if (!isReady) {
     await readyPromise;
   }
@@ -29,5 +30,8 @@ async function handleRequest(req, res) {
 }
 
 app.get("*", handleRequest);
-app.use(handleRequest);
-exports.neoshogi = functions.https.onRequest(app);
+
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+  console.log("neoshogi server listening on port", port);
+});

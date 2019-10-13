@@ -127,3 +127,8 @@ If you add `hosting.site` to `firebase.json` for custom domain, you have to set 
 In addition to above config, you need to update `Authorized JavaScript origins` and `Authorized redirect URLs` in Google APIs console as the error page that you will encounter through the first sign in attempt suggests.
 
 > The redirect URI in the request, https://<site name>.firebaseapp.com/\_\_/auth/handler, does not match the ones authorized for the OAuth client. To update the authorized redirect URIs, visit: https://console.developers.google.com/apis/credentials/oauthclient/.....
+
+# Cloud Run with Firebase Hosting
+
+Ref. https://firebase.google.com/docs/hosting/serverless-overview
+Ref. https://firebase.google.com/docs/hosting/cloud-run
