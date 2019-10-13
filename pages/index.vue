@@ -15,9 +15,9 @@
 </template>
 
 <script>
-import Welcome from '~/components/Welcome.vue'
-import Login from '~/components/Login.vue'
-import HowToPlay from '~/components/HowToPlay.vue'
+import Welcome from "~/components/Welcome.vue";
+import Login from "~/components/Login.vue";
+import HowToPlay from "~/components/HowToPlay.vue";
 
 export default {
   components: {
@@ -25,5 +25,5 @@ export default {
     Login,
     HowToPlay
   }
-}
+};
 </script>

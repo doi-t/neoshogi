@@ -24,15 +24,32 @@
       <v-card-actions>
         <v-btn color="success">Register</v-btn>
         <v-spacer></v-spacer>
-        <v-btn color="info" @click="login" type="submit">Login</v-btn>
+        <v-btn color="info" @click="loginWithEmailAndPassword" type="submit">Login</v-btn>
       </v-card-actions>
+      <v-divider></v-divider>
+      <v-card>
+        <v-layout justify-center>
+          <v-btn fab icon>
+            <v-avatar size="45">
+              <v-img
+                alt="Google Logo"
+                :src="require('@/assets/google-logo.png')"
+                @click="loginWithGoogle"
+              />
+            </v-avatar>
+          </v-btn>
+        </v-layout>
+      </v-card>
     </v-card>
   </v-container>
 </template>
 
 <script>
+import firebase from "firebase";
+import { auth } from "@/services/firebase";
+
 export default {
-  name: 'Login',
+  name: "Login",
   data: () => ({
     account: {
       email: "",
@@ -42,24 +59,54 @@ export default {
     errMsg: "",
     showPassword: false
   }),
+
   methods: {
-    login(e) {
+    loginWithEmailAndPassword(e) {
+      console.log("Signing with Email and Password...");
       e.preventDefault();
       this.$store
-        .dispatch("users/login", this.account)
+        .dispatch("users/loginWithEmailAndPassword", this.account)
         .then(() => {
-          this.$router.push("/mypage")
+          this.$store.dispatch("users/setLoginState");
+        })
+        .then(() => {
+          this.$router.push("/mypage");
         })
         .catch(error => {
-          console.log(error)
-          this.isError = true
-          this.errMsg = error.code
+          this.isError = true;
+          this.errMsg = error.code;
 
           setTimeout(() => {
-            this.isError = false
-          }, 5000)
+            this.isError = false;
+          }, 5000);
+        });
+    },
+    loginWithGoogle() {
+      console.log("Signing in using GoogleAuth...");
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithRedirect(provider);
+    }
+  },
+  async mounted() {
+    let user = await new Promise((resolve, reject) => {
+      firebase.auth().onAuthStateChanged(user => resolve(user));
+    });
+    if (user) {
+      console.log("You are already logged in.");
+      this.$store
+        .dispatch("users/setLoginState")
+        .then(() => {
+          this.$router.push("/mypage");
         })
+        .catch(error => {
+          this.isError = true;
+          this.errMsg = error.code;
+
+          setTimeout(() => {
+            this.isError = false;
+          }, 5000);
+        });
     }
   }
-}
+};
 </script>
