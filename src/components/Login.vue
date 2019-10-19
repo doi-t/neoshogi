@@ -1,12 +1,16 @@
 <template>
   <v-container>
-    <v-dialog v-model="loading" hide-overlay persistent width="300">
-      <v-card color="primary" dark>
-        <v-card-text>
-          Please stand by
-          <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
-        </v-card-text>
-      </v-card>
+    <v-dialog v-model="loading" fullscreen full-width hide-overlay persistent>
+      <v-container fluid fill-height style="background-color: rgba(255, 255, 255, 0.5);">
+        <v-layout justify-center align-center>
+          <v-card color="gray" dark width="300">
+            <v-card-text>
+              Please stand by
+              <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+            </v-card-text>
+          </v-card>
+        </v-layout>
+      </v-container>
     </v-dialog>
     <v-card min-width="400px" max-width="600px" class="mx-auto mt-5">
       <v-card-title class="pb-5">
