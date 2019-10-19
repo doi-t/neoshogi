@@ -1,16 +1,16 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col>
+    <v-layout row wrap>
+      <v-flex xs7>
         <Welcome />
-      </v-col>
-      <v-col>
+      </v-flex>
+      <v-flex xs5>
         <Login />
-      </v-col>
-      <v-col>
+      </v-flex>
+      <v-flex xs12>
         <HowToPlay />
-      </v-col>
-    </v-row>
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 
