@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-dialog v-model="loading" fullscreen full-width hide-overlay persistent>
+    <v-dialog v-model="loading" fullscreen hide-overlay persistent>
       <v-container fluid fill-height style="background-color: rgba(255, 255, 255, 0.5);">
         <v-layout justify-center align-center>
           <v-card color="gray" dark width="300">
@@ -12,8 +12,8 @@
         </v-layout>
       </v-container>
     </v-dialog>
-    <v-card min-width="400px" max-width="600px" class="mx-auto mt-5">
-      <v-card-title class="pb-5">
+    <v-card>
+      <v-card-title>
         <h1>Login</h1>
       </v-card-title>
       <v-card-text>

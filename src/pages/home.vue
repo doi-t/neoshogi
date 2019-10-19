@@ -1,11 +1,8 @@
 <template>
   <v-container>
     <v-layout row wrap>
-      <v-flex xs7>
+      <v-flex xs12>
         <Welcome />
-      </v-flex>
-      <v-flex xs5>
-        <Login />
       </v-flex>
       <v-flex xs12>
         <HowToPlay />
@@ -16,13 +13,11 @@
 
 <script>
 import Welcome from "~/components/Welcome.vue";
-import Login from "~/components/Login.vue";
 import HowToPlay from "~/components/HowToPlay.vue";
 
 export default {
   components: {
     Welcome,
-    Login,
     HowToPlay
   }
 };

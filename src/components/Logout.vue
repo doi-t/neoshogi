@@ -1,14 +1,16 @@
 <template>
-  <v-card min-width="400px" max-width="600px" class="mx-auto mt-5">
-    <v-card-title class="pb-5">
-      <h1>Logout</h1>
-    </v-card-title>
-    <v-card-text>
-      <v-card-actions>
-        <v-btn color="info" @click="logout" type="submit">Logout</v-btn>
-      </v-card-actions>
-    </v-card-text>
-  </v-card>
+  <v-container>
+    <v-card min-width="400px" max-width="600px" class="mx-auto mt-5">
+      <v-card-title class="pb-5">
+        <h1>Logout</h1>
+      </v-card-title>
+      <v-card-text>
+        <v-card-actions>
+          <v-btn color="info" @click="logout" type="submit">Logout</v-btn>
+        </v-card-actions>
+      </v-card-text>
+    </v-card>
+  </v-container>
 </template>
 
 <script>

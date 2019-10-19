@@ -1,15 +1,15 @@
 <template>
   <v-container>
-    <Login />
+    <Logout />
   </v-container>
 </template>
 
 <script>
-import Login from "~/components/Login.vue";
+import Logout from "~/components/Logout.vue";
 
 export default {
   components: {
-    Login
+    Logout
   }
 };
 </script>
