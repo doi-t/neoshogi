@@ -32,11 +32,11 @@
     "firebase": "^7.2.1",
     "js-cookie": "^2.2.1",
     "jwt-decode": "^2.2.0",
-    "nodemon": "^1.19.4",
     "nuxt": "^2.0.0"
   },
   "devDependencies": {
     "@nuxtjs/vuetify": "^1.0.0",
+    "nodemon": "^1.19.4",
     "rimraf": "^3.0.0"
   }
 }
