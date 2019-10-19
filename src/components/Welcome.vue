@@ -7,7 +7,7 @@
       <v-card-text>
         NeoShogi (ネオ将棋) is yet another online shogi (将棋) aming to be an e-sports.
         <br />🚧 Under construction 🚧
-        <br />It is being implemented with its own pace as a toy project.
+        <br />It is being implemented at its own pace as a toy project.
       </v-card-text>
     </v-card>
   </v-container>
