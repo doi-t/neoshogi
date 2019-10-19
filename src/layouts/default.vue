@@ -22,8 +22,8 @@
 export default {
   data() {
     return {
-      title: 'NeoShogi'
-    }
+      title: "NeoShogi"
+    };
   }
-}
+};
 </script>

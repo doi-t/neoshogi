@@ -5,7 +5,7 @@ const app = express();
 
 // Import and Set Nuxt.js options
 const config = require("../../nuxt.config.js");
-config.dev = !(process.env.NODE_ENV === "production");
+config.dev = process.env.NODE_ENV !== "production";
 
 async function start() {
   // Init Nuxt.js
@@ -20,6 +20,8 @@ async function start() {
   if (config.dev) {
     const builder = new Builder(nuxt);
     await builder.build();
+  } else {
+    await nuxt.ready();
   }
 
   // Give nuxt middleware to express
