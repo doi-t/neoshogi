@@ -12,8 +12,8 @@
         </v-layout>
       </v-container>
     </v-dialog>
-    <v-card min-width="400px" max-width="600px" class="mx-auto mt-5">
-      <v-card-title class="pb-5">
+    <v-card>
+      <v-card-title>
         <h1>Login</h1>
       </v-card-title>
       <v-card-text>
