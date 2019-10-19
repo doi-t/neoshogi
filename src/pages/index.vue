@@ -1,10 +1,10 @@
 <template>
   <v-container>
     <v-layout row wrap>
-      <v-flex xs7>
+      <v-flex xs12 md6 lg7>
         <Welcome />
       </v-flex>
-      <v-flex xs5>
+      <v-flex xs12 md6 lg5>
         <Login />
       </v-flex>
       <v-flex xs12>
