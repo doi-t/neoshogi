@@ -15,7 +15,7 @@
     "clean:servers": "rimraf servers/node_modules && rimraf servers/.nuxt",
     "clean:public": "rimraf \"public/**/*.*!(md)\" && rimraf public/_nuxt",
     "clean:static": "rimraf src/static/sw.js",
-    "copy": "yarn copy:nuxt && yarn copy:static",
+    "copy": "mkdir -p public/_nuxt/ && yarn copy:nuxt && yarn copy:static",
     "copy:nuxt": "cp -R servers/.nuxt/dist/ public/_nuxt/",
     "copy:static": "cp src/static/* public/",
     "start:firebase": "firebase serve --only hosting",
