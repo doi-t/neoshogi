@@ -20,8 +20,6 @@ const readyPromise = nuxt
   });
 
 async function handleRequest(req, res) {
-  console.log(`Received a request: ${req}`);
-  console.log(req);
   if (!isReady) {
     await readyPromise;
   }
