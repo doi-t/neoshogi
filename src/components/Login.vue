@@ -82,7 +82,7 @@ export default {
     isError: false,
     errMsg: "",
     showPassword: false,
-    loading: false
+    loading: true
   }),
   computed: mapState(["authenticated"]),
   methods: {
