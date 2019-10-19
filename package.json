@@ -36,6 +36,7 @@
     "nuxt": "^2.0.0"
   },
   "devDependencies": {
-    "@nuxtjs/vuetify": "^1.0.0"
+    "@nuxtjs/vuetify": "^1.0.0",
+    "rimraf": "^3.0.0"
   }
 }
