@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-card min-width="400px">
+    <v-card>
       <v-card-title>
         <h1>PlayerStats</h1>
       </v-card-title>

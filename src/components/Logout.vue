@@ -1,7 +1,7 @@
 <template>
   <v-container>
-    <v-card min-width="400px" max-width="600px" class="mx-auto mt-5">
-      <v-card-title class="pb-5">
+    <v-card>
+      <v-card-title>
         <h1>Logout</h1>
       </v-card-title>
       <v-card-text>
