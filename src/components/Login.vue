@@ -82,7 +82,7 @@ export default {
     isError: false,
     errMsg: "",
     showPassword: false,
-    loading: false
+    loading: true
   }),
   computed: mapState(["authenticated"]),
   methods: {
@@ -96,7 +96,7 @@ export default {
           this.$store.dispatch("users/setLoginState");
         })
         .then(() => {
-          this.$router.push("/mypage");
+          this.$router.push("/home");
         })
         .catch(error => {
           this.isError = true;
@@ -125,7 +125,7 @@ export default {
       this.$store
         .dispatch("users/setLoginState")
         .then(() => {
-          this.$router.push("/mypage");
+          this.$router.push("/home");
         })
         .catch(error => {
           this.isError = true;
