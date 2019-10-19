@@ -47,6 +47,7 @@
 <script>
 import firebase from "firebase";
 import { auth } from "@/services/firebase";
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "Login",
@@ -59,8 +60,9 @@ export default {
     errMsg: "",
     showPassword: false
   }),
-
+  computed: mapState(["authenticated"]),
   methods: {
+    ...mapActions(["setAuthenticated"]),
     loginWithEmailAndPassword(e) {
       console.log("Signing with Email and Password...");
       e.preventDefault();
@@ -93,6 +95,7 @@ export default {
     });
     if (user) {
       console.log("You are already logged in.");
+      this.setAuthenticated(true);
       this.$store
         .dispatch("users/setLoginState")
         .then(() => {
@@ -106,6 +109,9 @@ export default {
             this.isError = false;
           }, 5000);
         });
+    } else {
+      console.log("You are not logged in yet.");
+      this.setAuthenticated(false);
     }
   }
 };
