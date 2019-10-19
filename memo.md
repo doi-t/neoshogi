@@ -132,3 +132,72 @@ In addition to above config, you need to update `Authorized JavaScript origins` 
 
 Ref. https://firebase.google.com/docs/hosting/serverless-overview
 Ref. https://firebase.google.com/docs/hosting/cloud-run
+
+# Manage Firebase Token with Cloud KMS
+Firebase token is necessary when you want to deploy firebase in CI like Cloud Build.
+
+Ref. https://cloud.google.com/cloud-build/docs/configuring-builds/build-test-deploy-artifacts#deploying_artifacts
+
+You need to store the token in a secure but accessible way in your CI system.
+
+Ref. https://firebase.google.com/docs/cli
+
+## How to store Firebase token to Cloud KMS
+```shell
+$ firebase login:ci # You will get a token after Google Auth
+$ gcloud kms keyrings create neoshogi \
+  --location=global
+$ gcloud kms keyrings list \
+  --location=global
+NAME
+projects/doi-t-alpha/locations/global/keyRings/neoshogi
+$ gcloud kms keys create firebase-token \
+  --location=global \
+  --keyring=neoshogi \
+  --purpose=encryption
+$ gcloud kms keys list \
+  --location=global \
+  --keyring=neoshogi
+NAME                                                                               PURPOSE          ALGORITHM                    PROTECTION_LEVEL  LABELS  PRIMARY_ID  PRIMARY_STATE
+projects/doi-t-alpha/locations/global/keyRings/neoshogi/cryptoKeys/firebase-token  ENCRYPT_DECRYPT  GOOGLE_SYMMETRIC_ENCRYPTION  SOFTWARE                  1           ENABLED
+$ gcloud kms keys add-iam-policy-binding \
+    firebase-token --location=global --keyring=neoshogi \
+    --member=serviceAccount:xxxxxxxxxxx@cloudbuild.gserviceaccount.com \
+    --role=roles/cloudkms.cryptoKeyDecrypter
+Updated IAM policy for key [firebase-token].
+bindings:
+- members:
+  - serviceAccount:xxxxxxxxxxx@cloudbuild.gserviceaccount.com
+  role: roles/cloudkms.cryptoKeyDecrypter
+etag: BwWVP-zdtf4=
+version: 1
+$ MY_SECRET="<your firebase token>"; echo -n $MY_SECRET | gcloud kms encrypt \
+  --plaintext-file="-" \
+  --ciphertext-file="-" \
+  --location=global \
+  --keyring=neoshogi \
+  --key=firebase-token | base64
+```
+
+## How to revoke the token
+
+On any machine with the Firebase CLI installed, you can immediately revoke access for the specified token by running:
+
+```shell
+$ firebase logout --token <your firebase token>
+```
+
+# Cloud Build tips
+
+`cloud-build-local` sometimes gets stuck forever like below (at least on macbook with Docker Desktop).
+```
+$ cloud-build-local --config cloudbuild.yaml --dryrun=false . # First attempt
+2019/10/19 18:23:11 Warning: The server docker version installed (19.03.3) is different from the one used in GCB (18.09.0)
+2019/10/19 18:23:11 Warning: The client docker version installed (19.03.3) is different from the one used in GCB (18.09.0)
+$ cloud-build-local --config cloudbuild.yaml --dryrun=false . # Second attempt
+2019/10/19 18:25:18 Warning: there are left over step containers from a previous build, cleaning them.
+```
+
+Retart Docker Desktop and run `docker container prune`.
+Then, `cloud-build-local` might be able to start to build your application on your local.
+It takes time to start to see build logs, anyway. Be patient.
