@@ -1,5 +1,13 @@
 <template>
   <v-container>
+    <v-dialog v-model="loading" hide-overlay persistent width="300">
+      <v-card color="primary" dark>
+        <v-card-text>
+          Please stand by
+          <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-card min-width="400px" max-width="600px" class="mx-auto mt-5">
       <v-card-title class="pb-5">
         <h1>Login</h1>
@@ -58,7 +66,8 @@ export default {
     },
     isError: false,
     errMsg: "",
-    showPassword: false
+    showPassword: false,
+    loading: false
   }),
   computed: mapState(["authenticated"]),
   methods: {
@@ -91,6 +100,8 @@ export default {
   },
   async mounted() {
     let user = await new Promise((resolve, reject) => {
+      console.log("Loading...");
+      this.loading = true;
       firebase.auth().onAuthStateChanged(user => resolve(user));
     });
     if (user) {
@@ -99,6 +110,7 @@ export default {
       this.$store
         .dispatch("users/setLoginState")
         .then(() => {
+          this.loading = false;
           this.$router.push("/mypage");
         })
         .catch(error => {
@@ -111,6 +123,7 @@ export default {
         });
     } else {
       console.log("You are not logged in yet.");
+      this.loading = false;
       this.setAuthenticated(false);
     }
   }
