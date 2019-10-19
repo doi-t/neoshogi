@@ -11,7 +11,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install production dependencies.
-RUN npm install --only=production
+RUN yarn install --only=production
 
 # Copy local code to the container image.
 COPY . .
@@ -21,4 +21,4 @@ COPY . .
 ENV PORT 8080
 
 # Run the web service on container startup.
-CMD [ "npm", "start" ]
+CMD [ "yarn", "start" ]
