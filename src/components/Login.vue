@@ -14,7 +14,12 @@
       </v-card-title>
       <v-card-text>
         <v-form>
-          <v-text-field v-model="account.email" label="Username" prepend-icon="mdi-account-circle" />
+          <v-text-field
+            v-model="account.email"
+            label="Username"
+            prepend-icon="mdi-account-circle"
+            :disabled="loading"
+          />
           <v-text-field
             v-model="account.password"
             :type="showPassword ? 'text' : 'password'"
@@ -22,6 +27,7 @@
             prepend-icon="mdi-lock"
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             @click:append="showPassword = !showPassword"
+            :disabled="loading"
           />
         </v-form>
       </v-card-text>
@@ -30,14 +36,19 @@
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
-        <v-btn color="success">Register</v-btn>
+        <v-btn color="success" :disabled="loading">Register</v-btn>
         <v-spacer></v-spacer>
-        <v-btn color="info" @click="loginWithEmailAndPassword" type="submit">Login</v-btn>
+        <v-btn
+          color="info"
+          @click="loginWithEmailAndPassword"
+          type="submit"
+          :disabled="loading"
+        >Login</v-btn>
       </v-card-actions>
       <v-divider></v-divider>
       <v-card>
         <v-layout justify-center>
-          <v-btn fab icon>
+          <v-btn fab icon :disabled="loading">
             <v-avatar size="45">
               <v-img
                 alt="Google Logo"
@@ -110,7 +121,6 @@ export default {
       this.$store
         .dispatch("users/setLoginState")
         .then(() => {
-          this.loading = false;
           this.$router.push("/mypage");
         })
         .catch(error => {
