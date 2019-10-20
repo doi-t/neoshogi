@@ -22,7 +22,7 @@
     "start:server": "cd servers && yarn start",
     "deploy": "yarn deploy:cloudrun && yarn deploy:firebase",
     "deploy:firebase": "firebase deploy --only hosting:neoshogi",
-    "deploy:cloudrun": "cd servers && yarn build && yarn deploy"
+    "deploy:cloudrun": "cd servers && yarn deploy"
   },
   "dependencies": {
     "@nuxtjs/dotenv": "^1.4.1",

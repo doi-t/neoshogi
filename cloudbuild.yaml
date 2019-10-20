@@ -3,9 +3,6 @@ steps:
   args: [ 'build', '-f', './build/package/Dockerfile.firebase', '-t', 'gcr.io/$PROJECT_ID/firebase', '.' ]
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$PROJECT_ID/firebase']
-- name: node:12.12.0
-  entrypoint: yarn
-  args: ["cleanBuild:staticAndServer"]
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-f', './servers/Dockerfile', '-t', 'gcr.io/$PROJECT_ID/neoshogi', '.']
 - name: 'gcr.io/cloud-builders/docker'
