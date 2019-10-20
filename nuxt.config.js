@@ -33,7 +33,7 @@ module.exports = {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [],
+  plugins: ["@/plugins/firebase", "@/plugins/firebase-admin"],
   /**
    * Router settings
    */
