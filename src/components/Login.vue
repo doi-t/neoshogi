@@ -69,7 +69,7 @@
 
 <script>
 import firebase from "firebase";
-import { auth } from "@/services/firebase";
+import { auth } from "@/plugins/firebase";
 import { mapState, mapActions } from "vuex";
 
 export default {
