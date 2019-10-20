@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { auth } from "@/services/firebase";
+import { auth } from "@/plugins/firebase";
 import Cookie from "js-cookie";
 export default {
   methods: {
