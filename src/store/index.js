@@ -1,5 +1,6 @@
 import JWTDecode from "jwt-decode";
 import cookieparser from "cookieparser";
+import admin from "firebase-admin";
 
 export const state = () => ({
   authenticated: false
@@ -18,6 +19,18 @@ export const actions = {
     const accessTokenCookie = parsed.access_token;
 
     if (!accessTokenCookie) return;
+
+    admin
+      .auth()
+      .verifyIdToken(accessTokenCookie)
+      .then(() => {
+        console.log("ID Token has been verified.");
+        return;
+      })
+      .catch(error => {
+        console.error(error);
+        return;
+      });
 
     const decoded = JWTDecode(accessTokenCookie);
 

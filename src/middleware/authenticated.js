@@ -1,4 +1,5 @@
-export default function({ store, route, redirect }) {
+// See https://nuxtjs.org/api/context/ to understand arguments
+export default ({ store, route, redirect }) => {
   const user = store.state.users.user;
   const blockedRoute = /\/(home|game|mypage|logout)\/*/g;
   const homeRoute = "/";
@@ -10,4 +11,4 @@ export default function({ store, route, redirect }) {
   if (user && route.path === homeRoute) {
     redirect("/home");
   }
-}
+};
