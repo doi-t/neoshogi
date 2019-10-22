@@ -4,7 +4,6 @@ require("dotenv").config();
 module.exports = {
   mode: "universal",
   srcDir: "src",
-  buildDir: "servers/.nuxt",
   /*
    ** Headers of the page
    */
