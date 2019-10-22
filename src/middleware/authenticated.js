@@ -4,6 +4,7 @@ export default ({ req, store, route, redirect }) => {
     if (!req.headers.cookie) {
       console.error("Couldnt' find a cookie in the request header.");
       redirect("/");
+      return;
     }
 
     var admin = require("firebase-admin");

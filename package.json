@@ -5,23 +5,23 @@
   "author": "Toshiya Doi",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon src/server/index.js --watch server",
+    "dev": "export PORT=13000; cross-env NODE_ENV=development nodemon src/server/index.js --watch server",
     "start": "cross-env NODE_ENV=production node src/server/index.js",
     "generate": "nuxt generate",
     "build": "nuxt build",
-    "build:staticAndServer": "yarn clean && yarn build && yarn copy && cd servers && yarn",
-    "clean": "yarn clean:public && yarn clean:servers && yarn clean:static",
-    "clean:servers": "rimraf servers/node_modules && rimraf servers/.nuxt",
+    "build:server": "docker build -f ./build/package/Dockerfile.neoshogi -t gcr.io/doi-t-alpha/neoshogi .",
+    "build:static": "yarn build && yarn copy",
+    "clean": "yarn clean:public && yarn clean:static",
     "clean:public": "rimraf \"public/**/*.*!(md)\" && rimraf public/_nuxt",
     "clean:static": "rimraf src/static/sw.js",
-    "copy": "yarn copy:nuxt && yarn copy:static",
-    "copy:nuxt": "cp -R servers/.nuxt/dist/ public/_nuxt/",
+    "copy": "mkdir -p public/_nuxt/ && yarn copy:nuxt && yarn copy:static",
+    "copy:nuxt": "cp -R .nuxt/dist/ public/_nuxt/",
     "copy:static": "cp src/static/* public/",
     "start:firebase": "firebase serve --only hosting",
-    "start:server": "cd servers && yarn start",
-    "deploy": "yarn deploy:cloudrun && yarn deploy:firebase",
+    "start:server": "cross-env NODE_ENV=production node ./src/cloudrun/index.js",
     "deploy:firebase": "firebase deploy --only hosting:neoshogi",
-    "deploy:cloudrun": "cd servers && yarn build && yarn deploy"
+    "deploy:server": "gcloud beta run deploy neoshogi --project doi-t-alpha --image gcr.io/doi-t-alpha/neoshogi --region asia-northeast1 --platform managed --allow-unauthenticated",
+    "deploy": "yarn deploy:cloudrun && yarn deploy:firebase"
   },
   "dependencies": {
     "@nuxtjs/dotenv": "^1.4.1",
@@ -32,11 +32,11 @@
     "firebase": "^7.2.1",
     "firebase-admin": "^8.6.1",
     "js-cookie": "^2.2.1",
-    "jwt-decode": "^2.2.0",
     "nodemon": "^1.19.4",
     "nuxt": "^2.0.0"
   },
   "devDependencies": {
-    "@nuxtjs/vuetify": "^1.0.0"
+    "@nuxtjs/vuetify": "^1.0.0",
+    "rimraf": "^3.0.0"
   }
 }

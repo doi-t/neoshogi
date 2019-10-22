@@ -16,9 +16,12 @@ RUN yarn install --only=production
 # Copy local code to the container image.
 COPY . .
 
+RUN yarn build
+
 # Service must listen to $PORT environment variable.
 # This default value facilitates local development.
+ENV HOST 0.0.0.0
 ENV PORT 8080
 
 # Run the web service on container startup.
-CMD [ "yarn", "start" ]
+CMD [ "yarn", "start:server" ]
