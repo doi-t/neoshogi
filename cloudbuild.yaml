@@ -4,7 +4,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$PROJECT_ID/firebase']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-f', './servers/Dockerfile', '-t', 'gcr.io/$PROJECT_ID/neoshogi', '.']
+  args: ['build', '-f', './build/package/Dockerfile.neoshogi', '-t', 'gcr.io/$PROJECT_ID/neoshogi', '.']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$PROJECT_ID/neoshogi']
 - name: "gcr.io/cloud-builders/gcloud"
