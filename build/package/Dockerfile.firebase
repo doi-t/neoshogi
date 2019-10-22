@@ -22,6 +22,7 @@ RUN yarn install --only=production
 COPY . .
 
 RUN yarn build
+RUN yarn copy
 
 ARG FIREBASE_TOKEN
 RUN ["/usr/local/bin/firebase", "deploy", "--only", "hosting:neoshogi"]
