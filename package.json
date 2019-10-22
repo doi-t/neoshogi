@@ -5,7 +5,7 @@
   "author": "Toshiya Doi",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon src/server/index.js --watch server",
+    "dev": "export PORT=13000; cross-env NODE_ENV=development nodemon src/server/index.js --watch server",
     "start": "cross-env NODE_ENV=production node src/server/index.js",
     "generate": "nuxt generate",
     "build": "nuxt build",
