@@ -8,12 +8,11 @@ export const getters = {
 
 export const actions = {
   async setVerifiedToken({ commit }, token) {
-    // Set the user on the server side
     commit("users/SET_USER", {
       uid: token.uid,
       email: token.email
     });
-    console.log("Set verified token.");
+    console.log(`Set verified user token: ${token.uid}`);
   },
   async setAuthenticated({ commit }, authStatus) {
     commit("setAuthenticated", authStatus);

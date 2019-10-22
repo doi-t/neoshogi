@@ -1,5 +1,7 @@
 # Ref. https://cloud.google.com/cloud-build/docs/configuring-builds/build-test-deploy-artifacts#deploying_artifacts
-# use latest Node LTS (Boron)
+
+# Use the official Node.js 12 image.
+# https://hub.docker.com/_/node
 FROM node:12
 # install Firebase CLI
 RUN npm install -g firebase-tools

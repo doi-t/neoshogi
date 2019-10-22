@@ -202,7 +202,12 @@ Retart Docker Desktop and run `docker container prune`.
 Then, `cloud-build-local` might be able to start to build your application on your local.
 It takes time to start to see build logs, anyway. Be patient.
 
-# Nuxt.js Lifecycle Hooks
+# Nuxt.js
+
+## Local Development
+A local server sometimes doesn't respond to a browser at all. If you face it, try to delete `.nuxt` and restart the server.
+
+## Nuxt.js Lifecycle Hooks
 - Ref. https://vuejs.org/v2/guide/instance.html#Lifecycle-Diagram
 - Ref. https://zendev.com/2018/06/07/async-data-options-in-vue-nuxt.html
 - Ref. https://twitter.com/KrutiePatel/status/1000022559184764930?ref_src=twsrc%5Etfw
@@ -227,3 +232,4 @@ It takes time to start to see build logs, anyway. Be patient.
 1. fetch (CSR)
 1. afterEach (CSR)
 1. beforeCreate (CSR)
+
