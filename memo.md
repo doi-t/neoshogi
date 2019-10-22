@@ -201,3 +201,29 @@ $ cloud-build-local --config cloudbuild.yaml --dryrun=false . # Second attempt
 Retart Docker Desktop and run `docker container prune`.
 Then, `cloud-build-local` might be able to start to build your application on your local.
 It takes time to start to see build logs, anyway. Be patient.
+
+# Nuxt.js Lifecycle Hooks
+- Ref. https://vuejs.org/v2/guide/instance.html#Lifecycle-Diagram
+- Ref. https://zendev.com/2018/06/07/async-data-options-in-vue-nuxt.html
+- Ref. https://twitter.com/KrutiePatel/status/1000022559184764930?ref_src=twsrc%5Etfw
+- Ref. https://hafilog.com/execution-order
+
+## SSR
+
+1. nuxtServerInit (SSR)
+1. plugins (SSR)
+1. middleware (SSR)
+1. fetch (SSR)
+1. beforeCreate (SSR)
+1. plugins (CSR)
+1. beforeEach (CSR)
+1. afterEach (CSR)
+1. beforeCreate (CSR)
+
+## Not SSR
+
+1. beforeEach (CSR)
+1. middleware (CSR)
+1. fetch (CSR)
+1. afterEach (CSR)
+1. beforeCreate (CSR)
