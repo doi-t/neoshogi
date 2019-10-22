@@ -3,7 +3,25 @@
 # Use the official Node.js 12 image.
 # https://hub.docker.com/_/node
 FROM node:12
+
 # install Firebase CLI
 RUN npm install -g firebase-tools
 
-ENTRYPOINT ["/usr/local/bin/firebase"]
+# Create and change to the app directory.
+WORKDIR /usr/src/app
+
+# Copy application dependency manifests to the container image.
+# A wildcard is used to ensure both package.json AND package-lock.json are copied.
+# Copying this separately prevents re-running npm install on every code change.
+COPY package*.json ./
+
+# Install production dependencies.
+RUN yarn install --only=production
+
+# Copy local code to the container image.
+COPY . .
+
+RUN yarn build
+
+ARG FIREBASE_TOKEN
+RUN ["/usr/local/bin/firebase", "deploy", "--only", "hosting:neoshogi"]
