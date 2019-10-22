@@ -13,7 +13,7 @@ export const actions = {
       uid: token.uid,
       email: token.email
     });
-    console.log("Set verified token.");
+    console.log(`Set verified user token: ${token.uid}`);
   },
   async setAuthenticated({ commit }, authStatus) {
     commit("setAuthenticated", authStatus);

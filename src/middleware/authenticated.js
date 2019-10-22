@@ -2,7 +2,6 @@
 export default ({ req, store, route, redirect }) => {
   if (process.server) {
     if (!req.headers.cookie) {
-      console.error("Couldnt' find a cookie in the request header.");
       redirect("/");
       return;
     }
