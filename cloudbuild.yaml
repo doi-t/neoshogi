@@ -27,6 +27,7 @@ steps:
       -t gcr.io/$PROJECT_ID/firebase \
       .
   secretEnv: ['FIREBASE_TOKEN']
+  waitFor: ['-'] # Start immediately
 images:
 - 'gcr.io/$PROJECT_ID/neoshogi'
 - 'gcr.io/$PROJECT_ID/firebase'
