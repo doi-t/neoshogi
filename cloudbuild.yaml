@@ -1,6 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['cp', 'gs://neoshogi-dev/credentials/firebase-adminsdk.json', 'firebase-adminsdk.json']
+  args: ['cp', 'gs://neoshogi-dev/credentials/firebase-adminsdk.json', '/workspace/firebase-adminsdk.json']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-f', './build/package/Dockerfile.neoshogi', '-t', 'gcr.io/$PROJECT_ID/neoshogi', '.']
 - name: 'gcr.io/cloud-builders/docker'
