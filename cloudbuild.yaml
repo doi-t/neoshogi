@@ -1,10 +1,13 @@
 steps:
 - name: 'gcr.io/cloud-builders/gsutil'
+  args: ['cp', 'gs://neoshogi-dev/credentials/neoshogi-nuxt-env', '/workspace/.env']
+  id: 'nuxt-env-download'
+- name: 'gcr.io/cloud-builders/gsutil'
   args: ['cp', 'gs://neoshogi-dev/credentials/firebase-adminsdk.json', '/workspace/firebase-adminsdk.json']
   id: 'adminsdk-download'
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-f', './build/package/Dockerfile.neoshogi', '-t', 'gcr.io/$PROJECT_ID/neoshogi', '.']
-  waitFor: ['adminsdk-download']
+  waitFor: ['nuxt-env-download', 'adminsdk-download']
   id: 'neoshogi-build'
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$PROJECT_ID/neoshogi']
