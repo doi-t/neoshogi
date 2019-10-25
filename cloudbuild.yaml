@@ -20,6 +20,7 @@ steps:
       --region asia-northeast1 \
       --platform managed \
       --allow-unauthenticated \
+      --set-env-vars=GOOGLE_APPLICATION_CREDENTIALS="firebase-adminsdk.json" \
       --quiet
   waitFor: ['neoshogi-push']
 - name: "gcr.io/cloud-builders/docker"
