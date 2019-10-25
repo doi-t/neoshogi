@@ -1,10 +1,15 @@
 steps:
 - name: 'gcr.io/cloud-builders/gsutil'
   args: ['cp', 'gs://neoshogi-dev/credentials/firebase-adminsdk.json', '/workspace/firebase-adminsdk.json']
+  id: 'adminsdk-download'
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-f', './build/package/Dockerfile.neoshogi', '-t', 'gcr.io/$PROJECT_ID/neoshogi', '.']
+  waitFor: ['adminsdk-download']
+  id: 'neoshogi-build'
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$PROJECT_ID/neoshogi']
+  waitFor: ['neoshogi-build']
+  id: 'neoshogi-push'
 - name: "gcr.io/cloud-builders/gcloud"
   entrypoint: "bash"
   args:
@@ -16,6 +21,7 @@ steps:
       --platform managed \
       --allow-unauthenticated \
       --quiet
+  waitFor: ['neoshogi-push']
 - name: "gcr.io/cloud-builders/docker"
   entrypoint: "bash"
   args:
@@ -28,6 +34,7 @@ steps:
       .
   secretEnv: ['FIREBASE_TOKEN']
   waitFor: ['-'] # Start immediately
+  id: 'firebase-hosting-deploy'
 images:
 - 'gcr.io/$PROJECT_ID/neoshogi'
 - 'gcr.io/$PROJECT_ID/firebase'
