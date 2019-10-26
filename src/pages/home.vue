@@ -19,6 +19,9 @@ export default {
   components: {
     Welcome,
     HowToPlay
+  },
+  async fetch({ store, params }) {
+    await store.dispatch("db/getPlayer");
   }
 };
 </script>
