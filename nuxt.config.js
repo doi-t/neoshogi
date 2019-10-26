@@ -32,7 +32,11 @@ module.exports = {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: ["@/plugins/firebase", "@/plugins/firebase-admin"],
+  plugins: [
+    "@/plugins/firebase",
+    "@/plugins/firebase-admin",
+    "@/plugins/persistedstate.js"
+  ],
   /**
    * Router settings
    */
