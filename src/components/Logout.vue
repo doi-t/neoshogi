@@ -1,9 +1,7 @@
 <template>
   <v-container>
     <v-card>
-      <v-card-title>
-        <h1>Logout</h1>
-      </v-card-title>
+      <v-card-title>Logout</v-card-title>
       <v-card-text>
         <v-card-actions>
           <v-btn color="info" @click="logout" type="submit">Logout</v-btn>
@@ -21,6 +19,7 @@ export default {
     async logout() {
       await auth.signOut();
       await Cookie.remove("access_token");
+      await Cookie.remove("neoshogi");
       location.href = "/";
     }
   }
