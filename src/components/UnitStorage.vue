@@ -1,9 +1,7 @@
 <template>
   <v-container>
     <v-card>
-      <v-card-title>
-        <h1>UnitStorage</h1>
-      </v-card-title>
+      <v-card-title>UnitStorage</v-card-title>
       <v-card-text>Unit: 1 / Power: 2</v-card-text>
     </v-card>
   </v-container>

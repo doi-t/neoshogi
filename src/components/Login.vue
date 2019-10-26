@@ -13,9 +13,7 @@
       </v-container>
     </v-dialog>
     <v-card>
-      <v-card-title>
-        <h1>Login</h1>
-      </v-card-title>
+      <v-card-title>Login</v-card-title>
       <v-card-text>
         <v-form>
           <v-text-field
