@@ -14,6 +14,8 @@ export default ({ req, store, route, redirect }) => {
     var admin = require("firebase-admin");
     const cookieparser = require("cookieparser");
     const token = cookieparser.parse(req.headers.cookie).access_token;
+    if (!token) return;
+
     admin
       .auth()
       .verifyIdToken(token)

@@ -2,10 +2,6 @@ export const state = () => ({
   authenticated: false
 });
 
-export const getters = {
-  IsAuthenticated: state => state.authenticated
-};
-
 export const actions = {
   async setVerifiedToken({ commit }, token) {
     commit("users/SET_USER", {

@@ -1,9 +1,7 @@
 <template>
   <v-container>
     <v-card>
-      <v-card-title>
-        <h1>PlayerStatus</h1>
-      </v-card-title>
+      <v-card-title>PlayerStatus</v-card-title>
       <v-card-text>guest_123 (online) vs doi-t (you)</v-card-text>
       <v-card-actions>
         <v-btn color="#E53935">Give Up</v-btn>

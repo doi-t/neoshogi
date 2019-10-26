@@ -13,9 +13,7 @@
       </v-container>
     </v-dialog>
     <v-card>
-      <v-card-title>
-        <h1>Login</h1>
-      </v-card-title>
+      <v-card-title>Login</v-card-title>
       <v-card-text>
         <v-form>
           <v-text-field
@@ -35,9 +33,7 @@
           />
         </v-form>
       </v-card-text>
-      <v-card-text v-if="isError">
-        <p>{{ errMsg }}</p>
-      </v-card-text>
+      <v-alert type="error" v-if="isError">{{ errMsg }}</v-alert>
       <v-divider></v-divider>
       <v-card-actions>
         <v-btn color="success" :disabled="loading">Register</v-btn>

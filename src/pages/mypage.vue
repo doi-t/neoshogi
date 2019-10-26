@@ -1,9 +1,21 @@
 <template>
   <v-container>
-    <Profile />
-    <GameMatching />
-    <PlayerStats />
-    <RoomActivity />
+    <v-layout row wrap>
+      <v-flex xs12 sm4>
+        <Profile />
+      </v-flex>
+      <v-flex xs12 sm8>
+        <GameMatching />
+      </v-flex>
+    </v-layout>
+    <v-layout row wrap>
+      <v-flex xs12 md6>
+        <PlayerStats />
+      </v-flex>
+      <v-flex xs12 md6>
+        <RoomActivity />
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 

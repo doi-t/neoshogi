@@ -1,9 +1,7 @@
 <template>
   <v-container>
     <v-card>
-      <v-card-title>
-        <h1>RoomActivity</h1>
-      </v-card-title>
+      <v-card-title>RoomActivity</v-card-title>
       <v-card-text>
         1000 players are online. 10 games are on going. 6 players are waiting for
         random match.
