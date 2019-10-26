@@ -69,6 +69,14 @@ module.exports = {
     }
   },
   /*
+   ** Render configuration
+   */
+  render: {
+    bundleRenderer: {
+      runInNewContext: false
+    }
+  },
+  /*
    ** Build configuration
    */
   build: {
