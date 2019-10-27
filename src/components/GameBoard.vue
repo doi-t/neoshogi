@@ -8,7 +8,7 @@
           <v-container>
             <v-row v-for="(row, rowIndex) in cells" :key="rowIndex" no-gutters>
               <v-col v-for="(col, colIndex) in row" :key="colIndex">
-                <Unit :row="rowIndex" :col="colIndex" :unitStatus="col" />
+                <UnitCell :row="rowIndex" :col="colIndex" />
               </v-col>
             </v-row>
           </v-container>
@@ -25,57 +25,26 @@
 </template>
 
 <script>
-import Unit from "~/components/Unit.vue";
+import UnitCell from "~/components/UnitCell.vue";
 export default {
   name: "GameBoard",
   components: {
-    Unit
+    UnitCell
   },
   data: () => ({
-    scale: 3,
-    cells: [],
-    action: {
-      selected: false,
-      marked: false
-    }
+    scale: 3
   }),
-  computed: {},
-  async mounted() {
-    this.cells = new Array(this.scale);
-    var x, y;
-    for (x = 0; x < this.scale; x++) {
-      this.cells[x] = new Array(this.scale);
-      for (y = 0; y < this.scale; y++) {
-        this.cells[x][y] = {
-          position: `x:${x}, y:${y}`,
-          selected: false,
-          marked: false
-        };
-      }
+  computed: {
+    cells() {
+      return this.$store.state.db.gameStatus.cells;
     }
+  },
+  async mounted(store) {
+    this.$store.dispatch("db/initGame", this.scale);
   },
   methods: {
     initiateGame() {
-      this.selected = false;
-      this.marked = false;
-    },
-    cellAction(row, col) {
-      if (this.action.selected && this.action.marked) {
-        this.action.selected = false;
-        this.action.marked = false;
-      }
-
-      if (!this.action.selected) {
-        var v = this.cells[row].slice(0);
-        v[col].selected = true;
-        this.$set(this.cells, row, v);
-        this.action.selected = true;
-      } else if (!this.action.marked) {
-        var v = this.cells[row].slice(0);
-        v[col].marked = true;
-        this.$set(this.cells, row, v);
-        this.action.marked = true;
-      }
+      this.$store.dispatch("db/initGame", this.scale);
     }
   }
 };
