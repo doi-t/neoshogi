@@ -8,11 +8,7 @@
           <v-container>
             <v-row v-for="(row, rowIndex) in cells" :key="rowIndex" no-gutters>
               <v-col v-for="(col, colIndex) in row" :key="colIndex">
-                <v-card class="pa-2" outlined tile @click.native="cellAction(rowIndex, colIndex)">
-                  row:{{ rowIndex }}, col:{{ colIndex }}
-                  <br />
-                  {{ col }}
-                </v-card>
+                <Unit :row="rowIndex" :col="colIndex" :unitStatus="col" />
               </v-col>
             </v-row>
           </v-container>
@@ -29,8 +25,12 @@
 </template>
 
 <script>
+import Unit from "~/components/Unit.vue";
 export default {
   name: "GameBoard",
+  components: {
+    Unit
+  },
   data: () => ({
     scale: 3,
     cells: [],
