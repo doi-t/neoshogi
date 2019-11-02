@@ -19,7 +19,7 @@ export const state = () => ({
 });
 
 export const getters = {
-  getUnitStatus: state => (row, col) => {
+  getCell: state => (row, col) => {
     return state.gameStatus.cells[row][col];
   },
   getCellColor: state => (row, col) => {
@@ -47,8 +47,15 @@ export const actions = {
     for (row = 0; row < scale; row++) {
       cells[row] = [];
       for (col = 0; col < scale; col++) {
+        // Initialize data schema of each cell
         cells[row][col] = {
           position: { row: row, col: col },
+          unit: {
+            player: "",
+            role: "",
+            // upLeft, up, upRight, left, right, downLeft, down, downRigh
+            moves: [0, 1, 0, 0, "*", 0, 0, 0, 0]
+          },
           selected: false,
           marked: false
         };

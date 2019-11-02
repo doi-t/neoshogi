@@ -9,7 +9,7 @@
           <v-container>
             <v-row v-for="(row, rowIndex) in cells" :key="rowIndex" no-gutters>
               <v-col v-for="(col, colIndex) in row" :key="colIndex">
-                <UnitCell :row="rowIndex" :col="colIndex" />
+                <Cell :row="rowIndex" :col="colIndex" />
               </v-col>
             </v-row>
           </v-container>
@@ -27,12 +27,12 @@
 </template>
 
 <script>
-import UnitCell from "~/components/UnitCell.vue";
+import Cell from "~/components/Cell.vue";
 import { mapState } from "vuex";
 export default {
   name: "GameBoard",
   components: {
-    UnitCell
+    Cell
   },
   data: () => ({
     scale: 3
