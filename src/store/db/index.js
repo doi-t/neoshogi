@@ -70,12 +70,19 @@ export const actions = {
     commit("resetMarkAction");
   },
   updateCell: async ({ commit, state }, { row, col }) => {
+    const unitOwner = state.gameStatus.cells[row][col].unit.player;
     if (state.gameStatus.cells[row][col].selected) {
       commit("resetSelectAction");
       commit("resetMarkAction");
     } else if (!state.player.action.selected) {
+      if (unitOwner != state.player.profile.name) {
+        return;
+      }
       commit("selectCell", { row, col });
     } else {
+      if (unitOwner == state.player.profile.name) {
+        return;
+      }
       commit("markNextMove", { row, col });
     }
   }
