@@ -66,11 +66,13 @@ export const actions = {
     commit("initGame", { scale, cells });
   },
   resetAction: async ({ commit }) => {
-    commit("resetAction");
+    commit("resetSelectAction");
+    commit("resetMarkAction");
   },
   updateCell: async ({ commit, state }, { row, col }) => {
     if (state.gameStatus.cells[row][col].selected) {
-      commit("resetAction");
+      commit("resetSelectAction");
+      commit("resetMarkAction");
     } else if (!state.player.action.selected) {
       commit("selectCell", { row, col });
     } else {
@@ -110,24 +112,22 @@ export const mutations = {
     state.player.action.marked = true;
     state.player.action.markedCell = { row: row, col: col };
   },
-  resetAction: state => {
-    // Reset selected status
-    if (state.player.action.selected) {
-      state.gameStatus.cells[state.player.action.selectedCell.row][
-        state.player.action.selectedCell.col
-      ].selected = false;
-      state.player.action.selected = false;
-      state.player.action.selectedCell = { row: null, col: null };
-    }
-
-    // Reset marked status
-    if (state.player.action.marked) {
-      state.gameStatus.cells[state.player.action.markedCell.row][
-        state.player.action.markedCell.col
-      ].marked = false;
-      state.player.action.marked = false;
-      state.player.action.markedCell = { row: null, col: null };
-    }
+  resetSelectAction: state => {
+    if (!state.player.action.selected) return;
+    const row = state.player.action.selectedCell.row;
+    const col = state.player.action.selectedCell.col;
+    state.gameStatus.cells[row][col].selected = false;
+    state.gameStatus.cells[row][col].selected = false;
+    state.player.action.selected = false;
+    state.player.action.selectedcell = { row: null, col: null };
+  },
+  resetMarkAction: state => {
+    if (!state.player.action.marked) return;
+    const row = state.player.action.markedCell.row;
+    const col = state.player.action.markedCell.col;
+    state.gameStatus.cells[row][col].marked = false;
+    state.player.action.marked = false;
+    state.player.action.markedCell = { row: null, col: null };
   }
 };
 
