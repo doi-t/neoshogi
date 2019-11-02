@@ -85,6 +85,11 @@ export const actions = {
       }
       commit("markNextMove", { row, col });
     }
+  },
+  moveUnit: async ({ commit }) => {
+    commit("moveUnit");
+    commit("resetSelectAction");
+    commit("resetMarkAction");
   }
 };
 
@@ -135,6 +140,19 @@ export const mutations = {
     state.gameStatus.cells[row][col].marked = false;
     state.player.action.marked = false;
     state.player.action.markedCell = { row: null, col: null };
+  },
+  moveUnit: state => {
+    const selectedRow = state.player.action.selectedCell.row;
+    const selectedCol = state.player.action.selectedCell.col;
+    const markedRow = state.player.action.markedCell.row;
+    const markedCol = state.player.action.markedCell.col;
+    state.gameStatus.cells[markedRow][markedCol].unit =
+      state.gameStatus.cells[selectedRow][selectedCol].unit;
+    state.gameStatus.cells[selectedRow][selectedCol].unit = {
+      player: "",
+      role: "",
+      moves: []
+    };
   }
 };
 

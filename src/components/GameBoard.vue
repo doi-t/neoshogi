@@ -6,6 +6,7 @@
           <v-card-title>>GameBoard</v-card-title>
           <v-btn @click="initiateGame()">initiate</v-btn>
           <v-btn @click="resetAction()">reset</v-btn>
+          <v-btn @click="moveUnit()">move a unit</v-btn>
           <v-select v-model="selectedScale" :items="scales" label="Choose a game scale"></v-select>
           <v-container>
             <v-row v-for="(row, rowIndex) in cells" :key="rowIndex" no-gutters>
@@ -54,6 +55,9 @@ export default {
     },
     resetAction() {
       this.$store.dispatch("db/resetAction");
+    },
+    moveUnit() {
+      this.$store.dispatch("db/moveUnit");
     }
   }
 };
