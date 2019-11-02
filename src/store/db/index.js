@@ -2,7 +2,9 @@ import { db } from "@/plugins/firebase";
 import Vue from "vue";
 export const state = () => ({
   player: {
-    name: null,
+    profile: {
+      name: null
+    },
     action: {
       selected: false,
       marked: false
@@ -13,6 +15,17 @@ export const state = () => ({
     cells: []
   }
 });
+
+export const getters = {
+  getUnitStatus: state => (row, col) => {
+    return state.gameStatus.cells[row][col];
+  },
+  getCellColor: state => (row, col) => {
+    if (state.gameStatus.cells[row][col].selected) return "red";
+    if (state.gameStatus.cells[row][col].marked) return "green";
+    return "blue";
+  }
+};
 
 export const actions = {
   getPlayer: async ({ commit, rootState }) => {
@@ -56,7 +69,7 @@ export const actions = {
 
 export const mutations = {
   setPlayer: (state, playerInfo) => {
-    state.player.name = playerInfo;
+    state.player.profile = playerInfo;
   },
   initGame: (state, { scale, cells }) => {
     Vue.set(state.gameStatus, "cells", cells);

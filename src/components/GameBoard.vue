@@ -26,6 +26,7 @@
 
 <script>
 import UnitCell from "~/components/UnitCell.vue";
+import { mapState } from "vuex";
 export default {
   name: "GameBoard",
   components: {
@@ -35,9 +36,9 @@ export default {
     scale: 3
   }),
   computed: {
-    cells() {
-      return this.$store.state.db.gameStatus.cells;
-    }
+    ...mapState({
+      cells: state => state.db.gameStatus.cells
+    })
   },
   async mounted(store) {
     this.$store.dispatch("db/initGame", this.scale);

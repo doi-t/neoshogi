@@ -1,34 +1,23 @@
 <template>
   <v-container>
-    <v-card :class="cellColor" class="pa-2" outlined tile @click.native="updateCell()">
+    <v-card :class="getCellColor(row, col)" class="pa-2" outlined tile @click.native="updateCell()">
       row:{{ row }}, col:{{ col }}
       <br />
-      {{ unitStatus }}
+      {{ getUnitStatus(row, col) }}
     </v-card>
   </v-container>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
   props: ["row", "col"],
   data: () => ({}),
   computed: {
-    cellColor() {
-      if (this.$store.state.db.gameStatus.cells[this.row][this.col].selected)
-        return "red";
-      if (this.$store.state.db.gameStatus.cells[this.row][this.col].marked)
-        return "green";
-      return "blue";
-    },
-    unitStatus() {
-      return this.$store.state.db.gameStatus.cells[this.row][this.col];
-    },
-    selected() {
-      return { active: this.$store.state.db.player.selected };
-    },
-    marked() {
-      return this.$store.state.db.player.marked;
-    }
+    ...mapGetters({
+      getUnitStatus: "db/getUnitStatus",
+      getCellColor: "db/getCellColor"
+    })
   },
   methods: {
     updateCell() {
