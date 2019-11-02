@@ -5,6 +5,7 @@
         <v-card>
           <v-card-title>>GameBoard</v-card-title>
           <v-btn @click="initiateGame()">initiate</v-btn>
+          <v-btn @click="resetAction()">reset</v-btn>
           <v-container>
             <v-row v-for="(row, rowIndex) in cells" :key="rowIndex" no-gutters>
               <v-col v-for="(col, colIndex) in row" :key="colIndex">
@@ -17,6 +18,7 @@
 
       <v-col cols="4">
         <v-card>
+          <pre>{{ player }}</pre>
           <pre>{{ cells }}</pre>
         </v-card>
       </v-col>
@@ -37,6 +39,7 @@ export default {
   }),
   computed: {
     ...mapState({
+      player: state => state.db.player,
       cells: state => state.db.gameStatus.cells
     })
   },
@@ -46,6 +49,9 @@ export default {
   methods: {
     initiateGame() {
       this.$store.dispatch("db/initGame", this.scale);
+    },
+    resetAction() {
+      this.$store.dispatch("db/resetAction");
     }
   }
 };

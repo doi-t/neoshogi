@@ -7,7 +7,9 @@ export const state = () => ({
     },
     action: {
       selected: false,
-      marked: false
+      selectedCell: { row: null, col: null },
+      marked: false,
+      markedCell: { row: null, col: null }
     }
   },
   gameStatus: {
@@ -46,7 +48,7 @@ export const actions = {
       cells[row] = [];
       for (col = 0; col < scale; col++) {
         cells[row][col] = {
-          position: `row:${row}, col:${col}`,
+          position: { row: row, col: col },
           selected: false,
           marked: false
         };
@@ -54,14 +56,15 @@ export const actions = {
     }
     commit("initGame", { scale, cells });
   },
+  resetAction: async ({ commit }) => {
+    commit("resetAction");
+  },
   updateCell: async ({ commit, state }, { row, col }) => {
-    if (state.player.action.selected && state.player.action.marked) {
+    if (state.gameStatus.cells[row][col].selected) {
       commit("resetAction");
-    }
-
-    if (!state.player.action.selected) {
+    } else if (!state.player.action.selected) {
       commit("selectCell", { row, col });
-    } else if (!state.player.action.marked) {
+    } else {
       commit("markNextMove", { row, col });
     }
   }
@@ -74,21 +77,47 @@ export const mutations = {
   initGame: (state, { scale, cells }) => {
     Vue.set(state.gameStatus, "cells", cells);
     state.gameStatus.scale = scale;
+    state.player.action.selected = false;
+    state.player.action.selectedCell = { row: null, col: null };
+    state.player.action.marked = false;
+    state.player.action.markedCell = { row: null, col: null };
   },
   selectCell: (state, { row, col }) => {
     var v = state.gameStatus.cells[row].slice(0);
     v[col].selected = true;
     Vue.set(state.gameStatus.cells, row, v);
     state.player.action.selected = true;
+    state.player.action.selectedCell = { row: row, col: col };
   },
   markNextMove: (state, { row, col }) => {
     var v = state.gameStatus.cells[row].slice(0);
+    // Reset the previous marked status
+    if (state.player.action.marked)
+      state.gameStatus.cells[state.player.action.markedCell.row][
+        state.player.action.markedCell.col
+      ].marked = false;
     v[col].marked = true;
     Vue.set(state.gameStatus.cells, row, v);
     state.player.action.marked = true;
+    state.player.action.markedCell = { row: row, col: col };
   },
   resetAction: state => {
-    state.player.action.selected = false;
-    state.player.action.marked = false;
+    // Reset selected status
+    if (state.player.action.selected) {
+      state.gameStatus.cells[state.player.action.selectedCell.row][
+        state.player.action.selectedCell.col
+      ].selected = false;
+      state.player.action.selected = false;
+      state.player.action.selectedCell = { row: null, col: null };
+    }
+
+    // Reset marked status
+    if (state.player.action.marked) {
+      state.gameStatus.cells[state.player.action.markedCell.row][
+        state.player.action.markedCell.col
+      ].marked = false;
+      state.player.action.marked = false;
+      state.player.action.markedCell = { row: null, col: null };
+    }
   }
 };
