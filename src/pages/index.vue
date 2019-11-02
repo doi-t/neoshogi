@@ -1,16 +1,16 @@
 <template>
-  <v-container>
-    <v-layout row wrap>
-      <v-flex xs12 md6 lg7>
+  <v-container fluid>
+    <v-row no-gutters>
+      <v-col cols="12" sm="6" md="7">
         <Welcome />
-      </v-flex>
-      <v-flex xs12 md6 lg5>
+      </v-col>
+      <v-col cols="12" sm="6" md="5">
         <Login />
-      </v-flex>
-      <v-flex xs12>
+      </v-col>
+      <v-col cols="12">
         <HowToPlay />
-      </v-flex>
-    </v-layout>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

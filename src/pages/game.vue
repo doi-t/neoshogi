@@ -1,10 +1,22 @@
 <template>
-  <v-container>
-    <PlayerStatus />
-    <PhaseDisplay />
-    <GameBoard />
-    <UnitInfo />
-    <UnitStorage />
+  <v-container fluid>
+    <v-row no-gutters>
+      <v-col cols="4">
+        <PlayerStatus />
+      </v-col>
+      <v-col cols="4">
+        <UnitStorage />
+      </v-col>
+      <v-col cols="4">
+        <PhaseDisplay />
+      </v-col>
+      <v-col cols="12">
+        <GameBoard />
+      </v-col>
+      <v-col cols="12">
+        <UnitInfo />
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

@@ -8,7 +8,7 @@
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title>Player Name</v-list-item-title>
-          <v-list-item-subtitle>{{ playerName }}</v-list-item-subtitle>
+          <v-list-item-subtitle>{{ playerProfile.name }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
     </v-card>
@@ -16,11 +16,15 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
   computed: {
-    playerName() {
-      return this.$store.state.db.player.name;
-    }
+    ...mapState({
+      playerProfile: state => state.db.player.profile
+    })
+  },
+  async mounted(store) {
+    this.$store.dispatch("db/getPlayer");
   }
 };
 </script>
