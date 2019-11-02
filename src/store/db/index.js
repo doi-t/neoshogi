@@ -1,5 +1,6 @@
 import { db } from "@/plugins/firebase";
 import Vue from "vue";
+
 export const state = () => ({
   player: {
     profile: {
@@ -52,9 +53,8 @@ export const actions = {
           position: { row: row, col: col },
           unit: {
             player: "",
-            role: "",
-            // upLeft, up, upRight, left, right, downLeft, down, downRigh
-            moves: [0, 1, 0, 0, "*", 0, 0, 0, 0]
+            role: gamePresets[scale][row * scale + col].role,
+            moves: gamePresets[scale][row * scale + col].moves
           },
           selected: false,
           marked: false
@@ -127,4 +127,49 @@ export const mutations = {
       state.player.action.markedCell = { row: null, col: null };
     }
   }
+};
+
+// Initial unit arrangement and move powers
+// role: "", "unit" or "king"
+// moves: upLeft, up, upRight, left, right, downLeft, down, downRigh
+moves: [0, 1, 0, 0, "*", 0, 0, 0, 0];
+export const gamePresets = {
+  "3": [
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+    { role: "king", moves: [1, 1, 1, 1, "*", 1, 1, 1, 1] },
+    { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] }
+  ],
+  "5": [
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "", moves: [] },
+    { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+    { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+    { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+    { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+    { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+    { role: "", moves: [] },
+    { role: "unit", moves: [1, 1, 1, 1, "*", 1, 0, 1, 0] },
+    { role: "king", moves: [1, 1, 1, 1, "*", 1, 1, 1, 1] },
+    { role: "unit", moves: [1, 1, 1, 1, "*", 1, 0, 1, 0] },
+    { role: "", moves: [] }
+  ]
 };
