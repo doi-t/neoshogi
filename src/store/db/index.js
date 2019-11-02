@@ -42,7 +42,7 @@ export const actions = {
       await userDocRef.set({ name: "test player1" });
     }
   },
-  initGame: async ({ commit }, scale) => {
+  initGame: async ({ commit, state }, scale) => {
     var cells = [];
     var row, col;
     for (row = 0; row < scale; row++) {
@@ -52,7 +52,9 @@ export const actions = {
         cells[row][col] = {
           position: { row: row, col: col },
           unit: {
-            player: "",
+            player: gamePresets[scale][row * scale + col].role
+              ? state.player.profile.name
+              : "",
             role: gamePresets[scale][row * scale + col].role,
             moves: gamePresets[scale][row * scale + col].moves
           },
