@@ -80,9 +80,36 @@ export const actions = {
       }
       commit("selectCell", { row, col });
     } else {
-      if (unitOwner == state.player.profile.name) {
-        return;
+      if (unitOwner === state.player.profile.name) return;
+
+      const x = row - state.player.action.selectedCell.row;
+      const y = col - state.player.action.selectedCell.col;
+      console.log(`x: ${x}, y:${y}`);
+      var distance = Math.round(Math.sqrt(x * x + y * y));
+      if (Math.abs(x) != Math.abs(y) && x != 0 && y != 0) return;
+      if (Math.abs(x) === Math.abs(y)) distance = Math.abs(x);
+      const sRow = state.player.action.selectedCell.row;
+      const sCol = state.player.action.selectedCell.col;
+      if (x < 0 && y < 0) {
+        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[0]) return;
+      } else if (x < 0 && y === 0) {
+        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[1]) return;
+      } else if (x < 0 && 0 < y) {
+        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[2]) return;
+      } else if (x === 0 && y < 0) {
+        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[3]) return;
+      } else if (x === 0 && y === 0) {
+        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[4]) return;
+      } else if (x === 0 && 0 < y) {
+        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[5]) return;
+      } else if (0 < x && y < 0) {
+        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[6]) return;
+      } else if (0 < x && y === 0) {
+        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[7]) return;
+      } else if (0 < x && 0 < y) {
+        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[8]) return;
       }
+
       commit("markNextMove", { row, col });
     }
   },
