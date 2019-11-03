@@ -1,11 +1,7 @@
 <template>
-  <v-container>
-    <v-card :class="getCellColor(row, col)" class="pa-2" outlined tile @click.native="updateCell()">
-      <br />
-      {{ getCell(row, col).position }}
-      <Unit :unit="getCell(row, col).unit" />
-    </v-card>
-  </v-container>
+  <v-card :class="getCellColor(row, col)" tile class="ma-0 pa-0" @click.native="updateCell()">
+    <Unit :unit="getCell(row, col).unit" />
+  </v-card>
 </template>
 
 <script>

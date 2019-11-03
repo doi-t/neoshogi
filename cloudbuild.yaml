@@ -46,3 +46,4 @@ secrets:
 - kmsKeyName: projects/doi-t-alpha/locations/global/keyRings/neoshogi/cryptoKeys/firebase-token
   secretEnv:
     FIREBASE_TOKEN: CiQAfXuhstN4Y7o8UB2Jskzy+l1aZY/4ftfFk/d0MYLAE+P1ODQSVgAsLWaAnNk/SChgJM7GUKbuvT3LRfsQirHCbZ9BXfd8p/wwHbY9cSDi/fZW3umN6Zs/73BodHHGD4rONWDVVeJZYDoH7SgYQefS9Dn4zUV6OdmPXmco
+timeout: 900s

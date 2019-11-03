@@ -9,11 +9,15 @@
           <v-btn @click="moveUnit()">move a unit</v-btn>
           <v-select v-model="selectedScale" :items="scales" label="Choose a game scale"></v-select>
           <v-container>
-            <v-row v-for="(row, rowIndex) in cells" :key="rowIndex" no-gutters>
-              <v-col v-for="(col, colIndex) in row" :key="colIndex">
-                <Cell :row="rowIndex" :col="colIndex" />
-              </v-col>
-            </v-row>
+            <div class="text-center d-flex justify-center align-center xs-12 flex-wrap">
+              <v-card>
+                <v-row v-for="(row, rowIndex) in cells" :key="rowIndex" no-gutters>
+                  <v-col v-for="(col, colIndex) in row" :key="colIndex">
+                    <Cell :row="rowIndex" :col="colIndex" />
+                  </v-col>
+                </v-row>
+              </v-card>
+            </div>
           </v-container>
         </v-card>
       </v-col>
