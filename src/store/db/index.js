@@ -72,17 +72,14 @@ export const actions = {
     commit("resetMarkAction");
   },
   updateCell: async ({ commit, state }, { row, col }) => {
-    const unitOwner = state.gameStatus.cells[row][col].unit.player;
     if (state.gameStatus.cells[row][col].selected) {
       commit("resetSelectAction");
       commit("resetMarkAction");
     } else if (!state.player.action.selected) {
-      if (unitOwner != state.player.profile.name) {
-        return;
-      }
+      if (!isUnitOwner(state, row, col)) return;
       commit("selectCell", { row, col });
     } else {
-      if (unitOwner === state.player.profile.name) return;
+      if (isUnitOwner(state, row, col)) return;
       if (isMovable(state, row, col) === false) return;
       commit("markNextMove", { row, col });
     }
@@ -164,6 +161,15 @@ export const mutations = {
   }
 };
 
+const isUnitOwner = (state, row, col) => {
+  const unitOwner = state.gameStatus.cells[row][col].unit.player;
+  if (unitOwner != state.player.profile.name) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
 const isMovable = (state, row, col) => {
   const x = row - state.player.action.selectedCell.row;
   const y = col - state.player.action.selectedCell.col;
@@ -205,38 +211,31 @@ const markMovableCells = (state, row, col, mark) => {
   for (direction = 0; direction < moves.length; direction++) {
     if (direction === UPLEFT) {
       for (n = 1; n <= moves[direction]; n++)
-        if (markMovableCell(state, row, col, row - n, col - n, mark) === false)
-          break;
+        if (!markMovableCell(state, row, col, row - n, col - n, mark)) break;
     }
     if (direction === UP) {
       for (n = 1; n <= moves[direction]; n++)
-        if (markMovableCell(state, row, col, row - n, col, mark) === false)
-          break;
+        if (!markMovableCell(state, row, col, row - n, col, mark)) break;
     }
     if (direction === UPRIGHT) {
       for (n = 1; n <= moves[direction]; n++)
-        if (markMovableCell(state, row, col, row - n, col + n, mark) === false)
-          break;
+        if (!markMovableCell(state, row, col, row - n, col + n, mark)) break;
     }
     if (direction === LEFT) {
       for (n = 1; n <= moves[direction]; n++)
-        if (markMovableCell(state, row, col, row, col - n, mark) === false)
-          break;
+        if (!markMovableCell(state, row, col, row, col - n, mark)) break;
     }
     if (direction === RIGHT) {
       for (n = 1; n <= moves[direction]; n++)
-        if (markMovableCell(state, row, col, row, col + n, mark) === false)
-          break;
+        if (!markMovableCell(state, row, col, row, col + n, mark)) break;
     }
     if (direction === DOWNLEFT) {
       for (n = 1; n <= moves[direction]; n++)
-        if (markMovableCell(state, row, col, row + n, col - n, mark) === false)
-          break;
+        if (!markMovableCell(state, row, col, row + n, col - n, mark)) break;
     }
     if (direction === DOWN) {
       for (n = 1; n <= moves[direction]; n++)
-        if (markMovableCell(state, row, col, row + n, col, mark) === false)
-          break;
+        if (!markMovableCell(state, row, col, row + n, col, mark)) break;
     }
     if (direction === DOWNRIGHT) {
       for (n = 1; n <= moves[direction]; n++) {
