@@ -81,35 +81,7 @@ export const actions = {
       commit("selectCell", { row, col });
     } else {
       if (unitOwner === state.player.profile.name) return;
-
-      const x = row - state.player.action.selectedCell.row;
-      const y = col - state.player.action.selectedCell.col;
-      console.log(`x: ${x}, y:${y}`);
-      var distance = Math.round(Math.sqrt(x * x + y * y));
-      if (Math.abs(x) != Math.abs(y) && x != 0 && y != 0) return;
-      if (Math.abs(x) === Math.abs(y)) distance = Math.abs(x);
-      const sRow = state.player.action.selectedCell.row;
-      const sCol = state.player.action.selectedCell.col;
-      if (x < 0 && y < 0) {
-        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[0]) return;
-      } else if (x < 0 && y === 0) {
-        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[1]) return;
-      } else if (x < 0 && 0 < y) {
-        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[2]) return;
-      } else if (x === 0 && y < 0) {
-        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[3]) return;
-      } else if (x === 0 && y === 0) {
-        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[4]) return;
-      } else if (x === 0 && 0 < y) {
-        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[5]) return;
-      } else if (0 < x && y < 0) {
-        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[6]) return;
-      } else if (0 < x && y === 0) {
-        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[7]) return;
-      } else if (0 < x && 0 < y) {
-        if (distance > state.gameStatus.cells[sRow][sCol].unit.moves[8]) return;
-      }
-
+      if (isMovable(state, row, col) === false) return;
       commit("markNextMove", { row, col });
     }
   },
@@ -183,10 +155,53 @@ export const mutations = {
   }
 };
 
+const isMovable = (state, row, col) => {
+  const x = row - state.player.action.selectedCell.row;
+  const y = col - state.player.action.selectedCell.col;
+  var distance = Math.round(Math.sqrt(x * x + y * y));
+
+  // A cell other than 9 directions is out of scope.
+  if (Math.abs(x) !== Math.abs(y) && x !== 0 && y !== 0) return false;
+
+  if (Math.abs(x) === Math.abs(y)) distance = Math.abs(x);
+  const sRow = state.player.action.selectedCell.row;
+  const sCol = state.player.action.selectedCell.col;
+  const moves = state.gameStatus.cells[sRow][sCol].unit.moves;
+  if (x < 0 && y < 0) {
+    if (distance > moves[UPLEFT]) return false;
+  } else if (x < 0 && y === 0) {
+    if (distance > moves[UP]) return false;
+  } else if (x < 0 && 0 < y) {
+    if (distance > moves[UPRIGHT]) return false;
+  } else if (x === 0 && y < 0) {
+    if (distance > moves[LEFT]) return false;
+  } else if (x === 0 && y === 0) {
+    if (distance > moves[CENTER]) return false;
+  } else if (x === 0 && 0 < y) {
+    if (distance > moves[RIGHT]) return false;
+  } else if (0 < x && y < 0) {
+    if (distance > moves[DOWNLEFT]) return false;
+  } else if (0 < x && y === 0) {
+    if (distance > moves[DOWN]) return false;
+  } else if (0 < x && 0 < y) {
+    if (distance > moves[DOWNRIGHT]) return false;
+  } else {
+    return true;
+  }
+};
 // Initial unit arrangement and move powers
 // role: "", "unit" or "king"
-// moves: upLeft, up, upRight, left, right, downLeft, down, downRigh
-moves: [0, 1, 0, 0, "*", 0, 0, 0, 0];
+// moves: upLeft, up, upRight, left, center, right, downLeft, down, downRight
+// e.g. moves: [0, 1, 0, 0, "*", 0, 0, 0, 0];
+const UPLEFT = 0;
+const UP = 1;
+const UPRIGHT = 2;
+const LEFT = 3;
+const CENTER = 4;
+const RIGHT = 5;
+const DOWNLEFT = 6;
+const DOWN = 7;
+const DOWNRIGHT = 8;
 export const gamePresets = {
   "3": [
     { role: "", moves: [] },
