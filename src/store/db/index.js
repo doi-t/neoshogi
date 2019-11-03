@@ -71,10 +71,12 @@ export const actions = {
     commit("resetSelectAction");
     commit("resetMarkAction");
   },
-  updateCell: async ({ commit, state }, { row, col }) => {
+  updateCell: async ({ commit, state, dispatch }, { row, col }) => {
     if (state.gameStatus.cells[row][col].selected) {
       commit("resetSelectAction");
       commit("resetMarkAction");
+    } else if (state.gameStatus.cells[row][col].marked) {
+      dispatch("moveUnit");
     } else if (!state.player.action.selected) {
       if (!isUnitOwner(state, row, col)) return;
       commit("selectCell", { row, col });
