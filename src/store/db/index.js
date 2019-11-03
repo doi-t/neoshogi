@@ -79,7 +79,11 @@ export const actions = {
       if (!isUnitOwner(state, row, col)) return;
       commit("selectCell", { row, col });
     } else {
-      if (isUnitOwner(state, row, col)) return;
+      if (isUnitOwner(state, row, col)) {
+        commit("resetSelectAction");
+        commit("resetMarkAction");
+        commit("selectCell", { row, col });
+      }
       if (isMovable(state, row, col) === false) return;
       commit("markNextMove", { row, col });
     }
