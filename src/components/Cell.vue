@@ -1,21 +1,20 @@
 <template>
-  <v-container>
-    <v-card :class="getCellColor(row, col)" class="pa-2" outlined tile @click.native="updateCell()">
-      row:{{ row }}, col:{{ col }}
-      <br />
-      {{ getUnitStatus(row, col) }}
-    </v-card>
-  </v-container>
+  <v-card :class="getCellColor(row, col)" tile class="ma-0 pa-0" @click.native="updateCell()">
+    <Unit :unit="getCell(row, col).unit" />
+  </v-card>
 </template>
 
 <script>
+import Unit from "~/components/Unit.vue";
 import { mapGetters } from "vuex";
 export default {
+  name: "Cell",
   props: ["row", "col"],
+  components: { Unit },
   data: () => ({}),
   computed: {
     ...mapGetters({
-      getUnitStatus: "db/getUnitStatus",
+      getCell: "db/getCell",
       getCellColor: "db/getCellColor"
     })
   },

@@ -1,22 +1,29 @@
 <template>
   <v-container>
     <v-row no-gutters>
-      <v-col cols="8">
+      <v-col cols="12">
         <v-card>
           <v-card-title>>GameBoard</v-card-title>
           <v-btn @click="initiateGame()">initiate</v-btn>
           <v-btn @click="resetAction()">reset</v-btn>
+          <v-btn @click="moveUnit()">move a unit</v-btn>
+          <v-select v-model="selectedScale" :items="scales" label="Choose a game scale"></v-select>
           <v-container>
-            <v-row v-for="(row, rowIndex) in cells" :key="rowIndex" no-gutters>
-              <v-col v-for="(col, colIndex) in row" :key="colIndex">
-                <UnitCell :row="rowIndex" :col="colIndex" />
-              </v-col>
-            </v-row>
+            <div class="text-center d-flex justify-center align-center xs-12 flex-wrap">
+              <v-card>
+                <v-row v-for="(row, rowIndex) in cells" :key="rowIndex" no-gutters>
+                  <v-col v-for="(col, colIndex) in row" :key="colIndex">
+                    <Cell :row="rowIndex" :col="colIndex" />
+                  </v-col>
+                </v-row>
+              </v-card>
+            </div>
           </v-container>
         </v-card>
       </v-col>
-
-      <v-col cols="4">
+    </v-row>
+    <v-row no-gutters>
+      <v-col cols="12">
         <v-card>
           <pre>{{ player }}</pre>
           <pre>{{ cells }}</pre>
@@ -27,15 +34,16 @@
 </template>
 
 <script>
-import UnitCell from "~/components/UnitCell.vue";
+import Cell from "~/components/Cell.vue";
 import { mapState } from "vuex";
 export default {
   name: "GameBoard",
   components: {
-    UnitCell
+    Cell
   },
   data: () => ({
-    scale: 3
+    selectedScale: 3,
+    scales: [3, 5]
   }),
   computed: {
     ...mapState({
@@ -44,14 +52,17 @@ export default {
     })
   },
   async mounted(store) {
-    this.$store.dispatch("db/initGame", this.scale);
+    this.$store.dispatch("db/initGame", this.selectedScale);
   },
   methods: {
     initiateGame() {
-      this.$store.dispatch("db/initGame", this.scale);
+      this.$store.dispatch("db/initGame", this.selectedScale);
     },
     resetAction() {
       this.$store.dispatch("db/resetAction");
+    },
+    moveUnit() {
+      this.$store.dispatch("db/moveUnit");
     }
   }
 };
