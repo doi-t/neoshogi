@@ -53,7 +53,7 @@ export default {
   },
   data: () => ({
     selectedScale: 3,
-    scales: [3, 5]
+    scales: [3, 5, 7, 9]
   }),
   computed: {
     ...mapState({
