@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row no-gutters>
-      <v-col cols="8">
+      <v-col cols="12">
         <v-card>
           <v-card-title>>GameBoard</v-card-title>
           <v-btn @click="initiateGame()">initiate</v-btn>
@@ -17,8 +17,9 @@
           </v-container>
         </v-card>
       </v-col>
-
-      <v-col cols="4">
+    </v-row>
+    <v-row no-gutters>
+      <v-col cols="12">
         <v-card>
           <pre>{{ player }}</pre>
           <pre>{{ cells }}</pre>
