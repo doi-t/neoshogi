@@ -26,6 +26,7 @@ export const getters = {
   getCellColor: state => (row, col) => {
     if (state.gameStatus.cells[row][col].selected) return "red";
     if (state.gameStatus.cells[row][col].marked) return "green";
+    if (state.gameStatus.cells[row][col].movable) return "yellow";
     return "blue";
   }
 };
@@ -59,7 +60,8 @@ export const actions = {
             moves: gamePresets[scale][row * scale + col].moves
           },
           selected: false,
-          marked: false
+          marked: false,
+          movable: false
         };
       }
     }
@@ -108,16 +110,19 @@ export const mutations = {
     var v = state.gameStatus.cells[row].slice(0);
     v[col].selected = true;
     Vue.set(state.gameStatus.cells, row, v);
+
+    markMovableCells(state, row, col, true);
+
     state.player.action.selected = true;
     state.player.action.selectedCell = { row: row, col: col };
   },
   markNextMove: (state, { row, col }) => {
-    var v = state.gameStatus.cells[row].slice(0);
     // Reset the previous marked status
     if (state.player.action.marked)
       state.gameStatus.cells[state.player.action.markedCell.row][
         state.player.action.markedCell.col
       ].marked = false;
+    var v = state.gameStatus.cells[row].slice(0);
     v[col].marked = true;
     Vue.set(state.gameStatus.cells, row, v);
     state.player.action.marked = true;
@@ -127,7 +132,7 @@ export const mutations = {
     if (!state.player.action.selected) return;
     const row = state.player.action.selectedCell.row;
     const col = state.player.action.selectedCell.col;
-    state.gameStatus.cells[row][col].selected = false;
+    markMovableCells(state, row, col, false);
     state.gameStatus.cells[row][col].selected = false;
     state.player.action.selected = false;
     state.player.action.selectedcell = { row: null, col: null };
@@ -145,6 +150,10 @@ export const mutations = {
     const selectedCol = state.player.action.selectedCell.col;
     const markedRow = state.player.action.markedCell.row;
     const markedCol = state.player.action.markedCell.col;
+
+    // Reset movable marks before moving a selected unit
+    markMovableCells(state, selectedRow, selectedCol, false);
+
     state.gameStatus.cells[markedRow][markedCol].unit =
       state.gameStatus.cells[selectedRow][selectedCol].unit;
     state.gameStatus.cells[selectedRow][selectedCol].unit = {
@@ -189,6 +198,69 @@ const isMovable = (state, row, col) => {
     return true;
   }
 };
+
+const markMovableCells = (state, row, col, mark) => {
+  const moves = state.gameStatus.cells[row][col].unit.moves;
+  var direction, n;
+  for (direction = 0; direction < moves.length; direction++) {
+    if (direction === UPLEFT) {
+      for (n = 1; n <= moves[direction]; n++)
+        if (markMovableCell(state, row, col, row - n, col - n, mark) === false)
+          break;
+    }
+    if (direction === UP) {
+      for (n = 1; n <= moves[direction]; n++)
+        if (markMovableCell(state, row, col, row - n, col, mark) === false)
+          break;
+    }
+    if (direction === UPRIGHT) {
+      for (n = 1; n <= moves[direction]; n++)
+        if (markMovableCell(state, row, col, row - n, col + n, mark) === false)
+          break;
+    }
+    if (direction === LEFT) {
+      for (n = 1; n <= moves[direction]; n++)
+        if (markMovableCell(state, row, col, row, col - n, mark) === false)
+          break;
+    }
+    if (direction === RIGHT) {
+      for (n = 1; n <= moves[direction]; n++)
+        if (markMovableCell(state, row, col, row, col + n, mark) === false)
+          break;
+    }
+    if (direction === DOWNLEFT) {
+      for (n = 1; n <= moves[direction]; n++)
+        if (markMovableCell(state, row, col, row + n, col - n, mark) === false)
+          break;
+    }
+    if (direction === DOWN) {
+      for (n = 1; n <= moves[direction]; n++)
+        if (markMovableCell(state, row, col, row + n, col, mark) === false)
+          break;
+    }
+    if (direction === DOWNRIGHT) {
+      for (n = 1; n <= moves[direction]; n++)
+        if (markMovableCell(state, row, col, row + n, col + 1, mark) === false)
+          break;
+    }
+  }
+};
+
+const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
+  if (toRow < 0 || toCol < 0) return false;
+
+  const scale = state.gameStatus.scale;
+  if (toRow >= scale || toCol >= scale) return false;
+
+  const fromCell = state.gameStatus.cells[fromRow][fromCol];
+  const toCell = state.gameStatus.cells[toRow][toCol];
+  if (toCell.unit.player === fromCell.unit.player) return false;
+
+  var tmp = state.gameStatus.cells[toRow].slice(0);
+  tmp[toCol].movable = mark;
+  Vue.set(state.gameStatus.cells, toRow, tmp);
+};
+
 // Initial unit arrangement and move powers
 // role: "", "unit" or "king"
 // moves: upLeft, up, upRight, left, center, right, downLeft, down, downRight
