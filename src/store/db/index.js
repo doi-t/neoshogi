@@ -239,9 +239,9 @@ const markMovableCells = (state, row, col, mark) => {
           break;
     }
     if (direction === DOWNRIGHT) {
-      for (n = 1; n <= moves[direction]; n++)
-        if (markMovableCell(state, row, col, row + n, col + 1, mark) === false)
-          break;
+      for (n = 1; n <= moves[direction]; n++) {
+        if (!markMovableCell(state, row, col, row + n, col + n, mark)) break;
+      }
     }
   }
 };
@@ -259,6 +259,7 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
   var tmp = state.gameStatus.cells[toRow].slice(0);
   tmp[toCol].movable = mark;
   Vue.set(state.gameStatus.cells, toRow, tmp);
+  return true;
 };
 
 // Initial unit arrangement and move powers
