@@ -12,7 +12,7 @@
                   style="font-size: 40px; width: 64px; height: 64px;"
                 >{{ unit.moves[rowIndex * 3 + colIndex] }}</div>
 
-                <v-overlay :absolute="true" :value="true">
+                <v-overlay :absolute="true" :value="true" v-if="(rowIndex*3 + colIndex) != 4">
                   <div>
                     <v-btn
                       class="ma-0 pa-0"
