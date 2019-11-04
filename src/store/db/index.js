@@ -10,7 +10,8 @@ export const state = () => ({
       selected: false,
       selectedCell: { row: null, col: null },
       marked: false,
-      markedCell: { row: null, col: null }
+      markedCell: { row: null, col: null },
+      unitConfigDialog: false
     },
     storage: {
       units: 0,
@@ -87,6 +88,7 @@ export const actions = {
     if (state.game.cells[row][col].selected) {
       commit("resetSelectAction");
       commit("resetMarkAction");
+      commit("setUnitConfigDialog", { toggle: true });
     } else if (state.game.cells[row][col].marked) {
       dispatch("moveUnit");
     } else if (!state.player.action.selected) {
@@ -111,6 +113,9 @@ export const actions = {
       }
     }
   },
+  setUnitConfigDialog: async ({ commit }, { toggle }) => {
+    commit("setUnitConfigDialog", { toggle });
+  },
   moveUnit: async ({ commit }) => {
     commit("moveUnit");
     commit("resetSelectAction");
@@ -121,6 +126,10 @@ export const actions = {
 export const mutations = {
   setPlayer: (state, playerInfo) => {
     state.player.profile = playerInfo;
+  },
+  setUnitConfigDialog: (state, { toggle }) => {
+    console.log(toggle);
+    state.player.action.unitConfigDialog = toggle;
   },
   initGame: (state, { scale, cells }) => {
     state.game.scale = scale;
