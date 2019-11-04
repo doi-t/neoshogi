@@ -15,7 +15,7 @@ export const state = () => ({
     },
     storage: {
       units: 0,
-      speeds: 10
+      speeds: 0
     }
   },
   game: {
@@ -129,7 +129,12 @@ export const mutations = {
       selected: false,
       selectedCell: { row: null, col: null },
       marked: false,
-      markedCell: { row: null, col: null }
+      markedCell: { row: null, col: null },
+      unitConfigDialog: false
+    };
+    state.player.storage = {
+      units: 10,
+      speeds: 10
     };
   },
   startGame: state => {
