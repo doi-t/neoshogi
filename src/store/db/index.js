@@ -79,13 +79,21 @@ export const actions = {
     } else if (state.game.cells[row][col].marked) {
       dispatch("moveUnit");
     } else if (!state.player.action.selected) {
-      if (!isUnitOwner(state, row, col)) return;
-      commit("selectCell", { row, col });
-    } else {
       if (isUnitOwner(state, row, col)) {
-        commit("resetSelectAction");
-        commit("resetMarkAction");
         commit("selectCell", { row, col });
+      }
+    } else if (state.player.action.selected) {
+      if (isUnitOwner(state, row, col)) {
+        if (state.game.status === GAME_STATUS_DEPLOYING) {
+          if (isMovable(state, row, col) === true) {
+            commit("markNextMove", { row, col });
+            dispatch("moveUnit");
+          }
+        } else {
+          commit("resetSelectAction");
+          commit("resetMarkAction");
+          commit("selectCell", { row, col });
+        }
       } else if (isMovable(state, row, col) === true) {
         commit("markNextMove", { row, col });
       }
@@ -159,13 +167,12 @@ export const mutations = {
     // Reset movable marks before moving a selected unit
     markMovableCells(state, selectedRow, selectedCol, false);
 
-    state.game.cells[markedRow][markedCol].unit =
-      state.game.cells[selectedRow][selectedCol].unit;
-    state.game.cells[selectedRow][selectedCol].unit = {
-      player: "",
-      role: "",
-      moves: []
-    };
+    // Replace a marked cell to a selected cell
+    // The validation should be done in advance
+    const selectedTmp = state.game.cells[selectedRow][selectedCol].unit;
+    const markedTmp = state.game.cells[markedRow][markedCol].unit;
+    state.game.cells[markedRow][markedCol].unit = selectedTmp;
+    state.game.cells[selectedRow][selectedCol].unit = markedTmp;
   }
 };
 
@@ -283,7 +290,11 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
 
   const fromCell = state.game.cells[fromRow][fromCol];
   const toCell = state.game.cells[toRow][toCol];
-  if (toCell.unit.player === fromCell.unit.player) return false;
+  if (
+    state.game.status !== GAME_STATUS_DEPLOYING &&
+    toCell.unit.player === fromCell.unit.player
+  )
+    return false;
 
   var tmp = state.game.cells[toRow].slice(0);
   tmp[toCol].movable = mark;
