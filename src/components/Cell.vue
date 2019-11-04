@@ -8,11 +8,12 @@
     >
       <Unit :unit="getCell(row, col).unit" />
     </v-card>
-    <v-dialog v-model="dialog" persistent width="500">
+    <v-dialog v-model="dialog" persistent max-width="400">
       <v-card>
-        <v-card-title class="headline" primary-title>Unit Speed Config</v-card-title>
+        <v-card-title>Unit Speed Config (Speed Stock: {{ speeds }})</v-card-title>
 
         <UnitConfig :unit="getCell(row, col).unit" />
+
         <v-divider></v-divider>
 
         <v-card-actions>
@@ -27,7 +28,7 @@
 <script>
 import Unit from "~/components/Unit.vue";
 import UnitConfig from "~/components/UnitConfig.vue";
-import { mapGetters } from "vuex";
+import { mapState, mapGetters } from "vuex";
 export default {
   name: "Cell",
   props: ["row", "col"],
@@ -36,6 +37,9 @@ export default {
     dialog: false
   }),
   computed: {
+    ...mapState({
+      speeds: state => state.db.player.storage.speeds
+    }),
     ...mapGetters({
       getCell: "db/getCell",
       getCellColor: "db/getCellColor"
