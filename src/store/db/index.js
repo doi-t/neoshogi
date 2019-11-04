@@ -10,7 +10,12 @@ export const state = () => ({
       selected: false,
       selectedCell: { row: null, col: null },
       marked: false,
-      markedCell: { row: null, col: null }
+      markedCell: { row: null, col: null },
+      unitConfigDialog: false
+    },
+    storage: {
+      units: 0,
+      speeds: 0
     }
   },
   game: {
@@ -44,29 +49,8 @@ export const actions = {
       await userDocRef.set({ name: "test player1" });
     }
   },
-  initGame: async ({ commit, state }, scale) => {
-    var cells = [];
-    var row, col;
-    for (row = 0; row < scale; row++) {
-      cells[row] = [];
-      for (col = 0; col < scale; col++) {
-        // Initialize data schema of each cell
-        cells[row][col] = {
-          position: { row: row, col: col },
-          unit: {
-            player: gamePresets[scale].units[row * scale + col].role
-              ? state.player.profile.name
-              : "",
-            role: gamePresets[scale].units[row * scale + col].role,
-            moves: gamePresets[scale].units[row * scale + col].moves
-          },
-          selected: false,
-          marked: false,
-          movable: false
-        };
-      }
-    }
-    commit("initGame", { scale, cells });
+  initGame: async ({ commit }, scale) => {
+    commit("initGame", { scale });
   },
   startGame: async ({ commit, dispatch }) => {
     dispatch("resetAction");
@@ -83,6 +67,7 @@ export const actions = {
     if (state.game.cells[row][col].selected) {
       commit("resetSelectAction");
       commit("resetMarkAction");
+      commit("setUnitConfigDialog", { toggle: true });
     } else if (state.game.cells[row][col].marked) {
       dispatch("moveUnit");
     } else if (!state.player.action.selected) {
@@ -107,10 +92,23 @@ export const actions = {
       }
     }
   },
+  setUnitConfigDialog: async ({ commit }, { toggle }) => {
+    commit("setUnitConfigDialog", { toggle });
+  },
   moveUnit: async ({ commit }) => {
     commit("moveUnit");
     commit("resetSelectAction");
     commit("resetMarkAction");
+  },
+  increaseSpeed: async ({ commit, state }, { row, col, direction }) => {
+    if (state.player.storage.speeds > 0) {
+      commit("increaseSpeed", { row, col, direction });
+    }
+  },
+  decreaseSpeed: async ({ commit, state }, { row, col, direction }) => {
+    if (state.game.cells[row][col].unit.moves[direction] > 0) {
+      commit("decreaseSpeed", { row, col, direction });
+    }
   }
 };
 
@@ -118,15 +116,25 @@ export const mutations = {
   setPlayer: (state, playerInfo) => {
     state.player.profile = playerInfo;
   },
-  initGame: (state, { scale, cells }) => {
+  setUnitConfigDialog: (state, { toggle }) => {
+    console.log(toggle);
+    state.player.action.unitConfigDialog = toggle;
+  },
+  initGame: (state, { scale }) => {
     state.game.scale = scale;
     state.game.status = GAME_STATUS_INIT;
+    const cells = generateGameMap(scale, state.player.profile.name);
     Vue.set(state.game, "cells", cells);
     state.player.action = {
       selected: false,
       selectedCell: { row: null, col: null },
       marked: false,
-      markedCell: { row: null, col: null }
+      markedCell: { row: null, col: null },
+      unitConfigDialog: false
+    };
+    state.player.storage = {
+      units: 10,
+      speeds: 10
     };
   },
   startGame: state => {
@@ -185,7 +193,46 @@ export const mutations = {
     const markedTmp = state.game.cells[markedRow][markedCol].unit;
     state.game.cells[markedRow][markedCol].unit = selectedTmp;
     state.game.cells[selectedRow][selectedCol].unit = markedTmp;
+  },
+  increaseSpeed: (state, { row, col, direction }) => {
+    var cell = state.game.cells[row].slice(0);
+    const speed = cell[col].unit.moves[direction];
+    Vue.set(cell[col].unit.moves, direction, speed + 1);
+    Vue.set(state.game.cells, row, cell);
+    state.player.storage.speeds--;
+  },
+  decreaseSpeed: (state, { row, col, direction }) => {
+    var cell = state.game.cells[row].slice(0);
+    const speed = cell[col].unit.moves[direction];
+    Vue.set(cell[col].unit.moves, direction, speed - 1);
+    Vue.set(state.game.cells, row, cell);
+    state.player.storage.speeds++;
   }
+};
+
+const generateGameMap = (scale, playerName) => {
+  var cells = [];
+  var row, col;
+  for (row = 0; row < scale; row++) {
+    cells[row] = [];
+    for (col = 0; col < scale; col++) {
+      // Initialize data schema of each cell
+      cells[row][col] = {
+        position: { row: row, col: col },
+        unit: {
+          player: gamePresets[scale].units[row * scale + col].role
+            ? playerName
+            : "",
+          role: gamePresets[scale].units[row * scale + col].role,
+          moves: gamePresets[scale].units[row * scale + col].moves
+        },
+        selected: false,
+        marked: false,
+        movable: false
+      };
+    }
+  }
+  return cells;
 };
 
 const isUnitOwner = (state, row, col) => {

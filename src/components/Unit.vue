@@ -20,10 +20,9 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 export default {
   name: "Unit",
-  props: ["unit"],
+  props: ["unit", "unitConfig"],
   computed: {}
 };
 </script>
