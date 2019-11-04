@@ -58,7 +58,7 @@ export default {
   computed: {
     ...mapState({
       player: state => state.db.player,
-      cells: state => state.db.gameStatus.cells
+      cells: state => state.db.game.cells
     })
   },
   async mounted(store) {
