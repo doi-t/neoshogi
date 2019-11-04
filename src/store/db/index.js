@@ -15,7 +15,7 @@ export const state = () => ({
     },
     storage: {
       units: 0,
-      speeds: 0
+      speeds: 10
     }
   },
   game: {
@@ -121,11 +121,15 @@ export const actions = {
     commit("resetSelectAction");
     commit("resetMarkAction");
   },
-  increaseSpeed: async ({ commit }, { row, col, direction }) => {
-    commit("increaseSpeed", { row, col, direction });
+  increaseSpeed: async ({ commit, state }, { row, col, direction }) => {
+    if (state.player.storage.speeds > 0) {
+      commit("increaseSpeed", { row, col, direction });
+    }
   },
-  decreaseSpeed: async ({ commit }, { row, col, direction }) => {
-    commit("decreaseSpeed", { row, col, direction });
+  decreaseSpeed: async ({ commit, state }, { row, col, direction }) => {
+    if (state.game.cells[row][col].unit.moves[direction] > 0) {
+      commit("decreaseSpeed", { row, col, direction });
+    }
   }
 };
 
@@ -210,12 +214,14 @@ export const mutations = {
     const speed = cell[col].unit.moves[direction];
     Vue.set(cell[col].unit.moves, direction, speed + 1);
     Vue.set(state.game.cells, row, cell);
+    state.player.storage.speeds--;
   },
   decreaseSpeed: (state, { row, col, direction }) => {
     var cell = state.game.cells[row].slice(0);
     const speed = cell[col].unit.moves[direction];
     Vue.set(cell[col].unit.moves, direction, speed - 1);
     Vue.set(state.game.cells, row, cell);
+    state.player.storage.speeds++;
   }
 };
 
