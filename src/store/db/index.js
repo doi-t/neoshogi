@@ -11,6 +11,10 @@ export const state = () => ({
       selectedCell: { row: null, col: null },
       marked: false,
       markedCell: { row: null, col: null }
+    },
+    storage: {
+      units: 0,
+      speeds: 0
     }
   },
   game: {
