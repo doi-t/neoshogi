@@ -86,9 +86,9 @@ export const actions = {
         commit("resetSelectAction");
         commit("resetMarkAction");
         commit("selectCell", { row, col });
+      } else if (isMovable(state, row, col) === true) {
+        commit("markNextMove", { row, col });
       }
-      if (isMovable(state, row, col) === false) return;
-      commit("markNextMove", { row, col });
     }
   },
   moveUnit: async ({ commit }) => {
@@ -220,9 +220,8 @@ const isMovable = (state, row, col) => {
     if (distance > moves[DOWN]) return false;
   } else if (0 < x && 0 < y) {
     if (distance > moves[DOWNRIGHT]) return false;
-  } else {
-    return true;
   }
+  return true;
 };
 
 const markMovableCells = (state, row, col, mark) => {
