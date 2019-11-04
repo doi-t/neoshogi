@@ -49,29 +49,8 @@ export const actions = {
       await userDocRef.set({ name: "test player1" });
     }
   },
-  initGame: async ({ commit, state }, scale) => {
-    var cells = [];
-    var row, col;
-    for (row = 0; row < scale; row++) {
-      cells[row] = [];
-      for (col = 0; col < scale; col++) {
-        // Initialize data schema of each cell
-        cells[row][col] = {
-          position: { row: row, col: col },
-          unit: {
-            player: gamePresets[scale].units[row * scale + col].role
-              ? state.player.profile.name
-              : "",
-            role: gamePresets[scale].units[row * scale + col].role,
-            moves: gamePresets[scale].units[row * scale + col].moves
-          },
-          selected: false,
-          marked: false,
-          movable: false
-        };
-      }
-    }
-    commit("initGame", { scale, cells });
+  initGame: async ({ commit }, scale) => {
+    commit("initGame", { scale });
   },
   startGame: async ({ commit, dispatch }) => {
     dispatch("resetAction");
@@ -141,9 +120,10 @@ export const mutations = {
     console.log(toggle);
     state.player.action.unitConfigDialog = toggle;
   },
-  initGame: (state, { scale, cells }) => {
+  initGame: (state, { scale }) => {
     state.game.scale = scale;
     state.game.status = GAME_STATUS_INIT;
+    const cells = generateGameMap(scale, state.player.profile.name);
     Vue.set(state.game, "cells", cells);
     state.player.action = {
       selected: false,
@@ -223,6 +203,31 @@ export const mutations = {
     Vue.set(state.game.cells, row, cell);
     state.player.storage.speeds++;
   }
+};
+
+const generateGameMap = (scale, playerName) => {
+  var cells = [];
+  var row, col;
+  for (row = 0; row < scale; row++) {
+    cells[row] = [];
+    for (col = 0; col < scale; col++) {
+      // Initialize data schema of each cell
+      cells[row][col] = {
+        position: { row: row, col: col },
+        unit: {
+          player: gamePresets[scale].units[row * scale + col].role
+            ? playerName
+            : "",
+          role: gamePresets[scale].units[row * scale + col].role,
+          moves: gamePresets[scale].units[row * scale + col].moves
+        },
+        selected: false,
+        marked: false,
+        movable: false
+      };
+    }
+  }
+  return cells;
 };
 
 const isUnitOwner = (state, row, col) => {
