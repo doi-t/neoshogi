@@ -68,6 +68,10 @@ export const actions = {
     }
     commit("initGame", { scale, cells });
   },
+  startGame: async ({ commit, dispatch }) => {
+    dispatch("resetAction");
+    commit("startGame");
+  },
   resetAction: async ({ commit }) => {
     commit("resetSelectAction");
     commit("resetMarkAction");
@@ -121,6 +125,9 @@ export const mutations = {
       marked: false,
       markedCell: { row: null, col: null }
     };
+  },
+  startGame: state => {
+    state.game.status = GAME_STATUS_PLAYING;
   },
   selectCell: (state, { row, col }) => {
     var v = state.game.cells[row].slice(0);
