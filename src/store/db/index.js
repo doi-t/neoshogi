@@ -117,9 +117,7 @@ export const mutations = {
     var v = state.game.cells[row].slice(0);
     v[col].selected = true;
     Vue.set(state.game.cells, row, v);
-
     markMovableCells(state, row, col, true);
-
     state.player.action.selected = true;
     state.player.action.selectedCell = { row: row, col: col };
   },
@@ -183,11 +181,11 @@ const isUnitOwner = (state, row, col) => {
 const isMovable = (state, row, col) => {
   const x = row - state.player.action.selectedCell.row;
   const y = col - state.player.action.selectedCell.col;
-  var distance = Math.round(Math.sqrt(x * x + y * y));
 
   // A cell other than 9 directions is out of scope.
   if (Math.abs(x) !== Math.abs(y) && x !== 0 && y !== 0) return false;
 
+  var distance = Math.round(Math.sqrt(x * x + y * y));
   if (Math.abs(x) === Math.abs(y)) distance = Math.abs(x);
   const sRow = state.player.action.selectedCell.row;
   const sCol = state.player.action.selectedCell.col;
@@ -219,36 +217,37 @@ const markMovableCells = (state, row, col, mark) => {
   const moves = state.game.cells[row][col].unit.moves;
   var direction, n;
   for (direction = 0; direction < moves.length; direction++) {
+    var speed = moves[direction];
     if (direction === UPLEFT) {
-      for (n = 1; n <= moves[direction]; n++)
+      for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row - n, col - n, mark)) break;
     }
     if (direction === UP) {
-      for (n = 1; n <= moves[direction]; n++)
+      for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row - n, col, mark)) break;
     }
     if (direction === UPRIGHT) {
-      for (n = 1; n <= moves[direction]; n++)
+      for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row - n, col + n, mark)) break;
     }
     if (direction === LEFT) {
-      for (n = 1; n <= moves[direction]; n++)
+      for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row, col - n, mark)) break;
     }
     if (direction === RIGHT) {
-      for (n = 1; n <= moves[direction]; n++)
+      for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row, col + n, mark)) break;
     }
     if (direction === DOWNLEFT) {
-      for (n = 1; n <= moves[direction]; n++)
+      for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row + n, col - n, mark)) break;
     }
     if (direction === DOWN) {
-      for (n = 1; n <= moves[direction]; n++)
+      for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row + n, col, mark)) break;
     }
     if (direction === DOWNRIGHT) {
-      for (n = 1; n <= moves[direction]; n++) {
+      for (n = 1; n <= speed; n++) {
         if (!markMovableCell(state, row, col, row + n, col + n, mark)) break;
       }
     }
