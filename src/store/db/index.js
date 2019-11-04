@@ -178,7 +178,19 @@ const isUnitOwner = (state, row, col) => {
   }
 };
 
+const canDeployUnit = (state, row) => {
+  if (state.game.status !== GAME_STATUS_PLAYING) {
+    if (row < gamePresets[state.game.scale].deploymentArea) return false;
+  }
+  return true;
+};
+
 const isMovable = (state, row, col) => {
+  if (state.game.status === GAME_STATUS_DEPLOYING) {
+    if (canDeployUnit(state, row)) return true;
+    else return false;
+  }
+
   const x = row - state.player.action.selectedCell.row;
   const y = col - state.player.action.selectedCell.col;
 
@@ -214,6 +226,16 @@ const isMovable = (state, row, col) => {
 };
 
 const markMovableCells = (state, row, col, mark) => {
+  if (state.game.status === GAME_STATUS_DEPLOYING) {
+    var area = gamePresets[state.game.scale].deploymentArea;
+    var areaRow, areaCol;
+    for (areaRow = area; areaRow < state.game.scale; areaRow++) {
+      for (areaCol = 0; areaCol <= state.game.scale; areaCol++)
+        markMovableCell(state, row, col, areaRow, areaCol, mark);
+    }
+    return;
+  }
+
   const moves = state.game.cells[row][col].unit.moves;
   var direction, n;
   for (direction = 0; direction < moves.length; direction++) {
