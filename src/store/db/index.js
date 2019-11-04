@@ -96,6 +96,7 @@ export const actions = {
         }
       } else if (isMovable(state, row, col) === true) {
         commit("markNextMove", { row, col });
+        dispatch("moveUnit");
       }
     }
   },
