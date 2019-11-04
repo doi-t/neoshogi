@@ -14,8 +14,16 @@
 
                 <v-overlay :absolute="true" :value="true">
                   <div>
-                    <v-btn class="ma-0 pa-0" left style="width: 32px; height: 32px; opacity: 0.4;">+</v-btn>
-                    <v-btn class="ma-0 pa-0" left style="width: 32px; height: 32px; opacity: 0.4;">-</v-btn>
+                    <v-btn
+                      class="ma-0 pa-0"
+                      style="width: 32px; height: 32px; opacity: 0.4;"
+                      @click.native="increaseSpeed(rowIndex * 3 + colIndex)"
+                    >+</v-btn>
+                    <v-btn
+                      class="ma-0 pa-0"
+                      style="width: 32px; height: 32px; opacity: 0.4;"
+                      @click.native="decreaseSpeed(rowIndex * 3 + colIndex)"
+                    >-</v-btn>
                   </div>
                 </v-overlay>
               </v-card>
@@ -32,6 +40,22 @@
 import { mapState } from "vuex";
 export default {
   name: "UnitConfig",
-  props: ["unit", "unitConfig"]
+  props: ["row", "col", "unit"],
+  methods: {
+    increaseSpeed(direction) {
+      this.$store.dispatch("db/increaseSpeed", {
+        row: this.row,
+        col: this.col,
+        direction: direction
+      });
+    },
+    decreaseSpeed(direction) {
+      this.$store.dispatch("db/decreaseSpeed", {
+        row: this.row,
+        col: this.col,
+        direction: direction
+      });
+    }
+  }
 };
 </script>

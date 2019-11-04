@@ -12,7 +12,7 @@
       <v-card>
         <v-card-title>Unit Speed Config (Speed Stock: {{ speeds }})</v-card-title>
 
-        <UnitConfig :unit="getCell(row, col).unit" />
+        <UnitConfig :row="row" :col="col" :unit="getCell(row, col).unit" />
 
         <v-divider></v-divider>
 

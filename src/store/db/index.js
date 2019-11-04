@@ -120,6 +120,12 @@ export const actions = {
     commit("moveUnit");
     commit("resetSelectAction");
     commit("resetMarkAction");
+  },
+  increaseSpeed: async ({ commit }, { row, col, direction }) => {
+    commit("increaseSpeed", { row, col, direction });
+  },
+  decreaseSpeed: async ({ commit }, { row, col, direction }) => {
+    commit("decreaseSpeed", { row, col, direction });
   }
 };
 
@@ -198,6 +204,18 @@ export const mutations = {
     const markedTmp = state.game.cells[markedRow][markedCol].unit;
     state.game.cells[markedRow][markedCol].unit = selectedTmp;
     state.game.cells[selectedRow][selectedCol].unit = markedTmp;
+  },
+  increaseSpeed: (state, { row, col, direction }) => {
+    var cell = state.game.cells[row].slice(0);
+    const speed = cell[col].unit.moves[direction];
+    Vue.set(cell[col].unit.moves, direction, speed + 1);
+    Vue.set(state.game.cells, row, cell);
+  },
+  decreaseSpeed: (state, { row, col, direction }) => {
+    var cell = state.game.cells[row].slice(0);
+    const speed = cell[col].unit.moves[direction];
+    Vue.set(cell[col].unit.moves, direction, speed - 1);
+    Vue.set(state.game.cells, row, cell);
   }
 };
 
