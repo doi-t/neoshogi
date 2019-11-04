@@ -5,7 +5,7 @@
         <PlayerStatus />
       </v-col>
       <v-col cols="4">
-        <UnitStorage />
+        <Storage />
       </v-col>
       <v-col cols="4">
         <PhaseDisplay />
@@ -21,14 +21,14 @@
 import PlayerStatus from "~/components/PlayerStatus.vue";
 import PhaseDisplay from "~/components/PhaseDisplay.vue";
 import GameBoard from "~/components/GameBoard.vue";
-import UnitStorage from "~/components/UnitStorage.vue";
+import Storage from "~/components/Storage.vue";
 
 export default {
   components: {
     PlayerStatus,
     PhaseDisplay,
     GameBoard,
-    UnitStorage
+    Storage
   }
 };
 </script>
