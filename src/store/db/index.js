@@ -72,6 +72,9 @@ export const actions = {
     dispatch("resetAction");
     commit("startGame");
   },
+  deployUnit: async ({ commit }) => {
+    commit("deployUnit");
+  },
   resetAction: async ({ commit }) => {
     commit("resetSelectAction");
     commit("resetMarkAction");
@@ -88,7 +91,7 @@ export const actions = {
       }
     } else if (state.player.action.selected) {
       if (isUnitOwner(state, row, col)) {
-        if (state.game.status === GAME_STATUS_DEPLOYING) {
+        if (state.game.status === GAME_STATUS_INIT) {
           if (isMovable(state, row, col) === true) {
             commit("markNextMove", { row, col });
             dispatch("moveUnit");
@@ -117,7 +120,7 @@ export const mutations = {
   },
   initGame: (state, { scale, cells }) => {
     state.game.scale = scale;
-    state.game.status = GAME_STATUS_DEPLOYING;
+    state.game.status = GAME_STATUS_INIT;
     Vue.set(state.game, "cells", cells);
     state.player.action = {
       selected: false,
@@ -129,6 +132,7 @@ export const mutations = {
   startGame: state => {
     state.game.status = GAME_STATUS_PLAYING;
   },
+  deployUnit: state => {},
   selectCell: (state, { row, col }) => {
     var v = state.game.cells[row].slice(0);
     v[col].selected = true;
@@ -201,7 +205,7 @@ const canDeployUnit = (state, row) => {
 };
 
 const isMovable = (state, row, col) => {
-  if (state.game.status === GAME_STATUS_DEPLOYING) {
+  if (state.game.status === GAME_STATUS_INIT) {
     if (canDeployUnit(state, row)) return true;
     else return false;
   }
@@ -240,7 +244,7 @@ const isMovable = (state, row, col) => {
 };
 
 const markMovableCells = (state, row, col, mark) => {
-  if (state.game.status === GAME_STATUS_DEPLOYING) {
+  if (state.game.status === GAME_STATUS_INIT) {
     var area = gamePresets[state.game.scale].deploymentArea;
     var areaRow, areaCol;
     for (areaRow = area; areaRow < state.game.scale; areaRow++) {
@@ -299,7 +303,7 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
   const fromCell = state.game.cells[fromRow][fromCol];
   const toCell = state.game.cells[toRow][toCol];
   if (
-    state.game.status !== GAME_STATUS_DEPLOYING &&
+    state.game.status !== GAME_STATUS_INIT &&
     toCell.unit.player === fromCell.unit.player
   )
     return false;
