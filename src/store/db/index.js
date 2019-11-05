@@ -7,6 +7,7 @@ export const state = () => ({
       name: null
     },
     action: {
+      turn: "", // "black" or "white"
       selected: false,
       selectedCell: { row: null, col: null },
       marked: false,
@@ -52,9 +53,57 @@ export const actions = {
   initGame: async ({ commit }, scale) => {
     commit("initGame", { scale });
   },
-  startGame: async ({ commit, dispatch }) => {
+  startGame: async ({ commit, state, dispatch }) => {
     dispatch("resetAction");
-    commit("startGame");
+
+    // Decide which is "Black" and which is "White"
+    commit("setPlayerTurn", GAME_TURN_BLACK); // FIXME randomize it
+    // commit("setPlayerTurn", GAME_TURN_WHITE); // FIXME randomize it
+
+    // Send player A's initial deployment
+    var myDeployment = extractDeploymentFromMap(
+      state.game.cells,
+      state.game.scale
+    );
+
+    // Receive player B's initial deployment
+    const tmpCells = generateGameMap(state.game.scale, "Player B");
+    const opponentDeployment = extractDeploymentFromMap(
+      tmpCells,
+      state.game.scale
+    ); // FIXME
+
+    // Rotate the game board by 180 degree for "White" at data level
+    var blackDeployment = [];
+    var whiteDeployment = [];
+    console.log(state.player.action.turn);
+    if (state.player.action.turn === GAME_TURN_BLACK) {
+      blackDeployment = myDeployment;
+      whiteDeployment = rotateCells(opponentDeployment);
+    } else if (state.player.action.turn === GAME_TURN_WHITE) {
+      blackDeployment = opponentDeployment;
+      whiteDeployment = rotateCells(myDeployment);
+    }
+
+    // Merge both deployments into one
+    // Manage cell data as same as what "Black" sees
+    const mergedCells = mergeDeployments(
+      blackDeployment,
+      whiteDeployment,
+      state.game.scale
+    );
+
+    // Rotate the game board by 180 degree for "White" at visualization level
+    // TODO: Keep position in a cell so that it can be data level position
+    var finalizedCells = [];
+    if (state.player.action.turn === GAME_TURN_BLACK) {
+      finalizedCells = mergedCells;
+    }
+    if (state.player.action.turn === GAME_TURN_WHITE) {
+      finalizedCells = rotateCells(mergedCells);
+    }
+
+    commit("startGame", finalizedCells);
   },
   deployUnit: async ({ commit }) => {
     commit("deployUnit");
@@ -112,12 +161,15 @@ export const actions = {
   }
 };
 
+// TODO: Unifiy the style of argument. Do not need to use dict.
 export const mutations = {
   setPlayer: (state, playerInfo) => {
     state.player.profile = playerInfo;
   },
+  setPlayerTurn: (state, turn) => {
+    state.player.action.turn = turn;
+  },
   setUnitConfigDialog: (state, { toggle }) => {
-    console.log(toggle);
     state.player.action.unitConfigDialog = toggle;
   },
   initGame: (state, { scale }) => {
@@ -137,7 +189,10 @@ export const mutations = {
       speeds: 10
     };
   },
-  startGame: state => {
+  startGame: (state, mergedCells) => {
+    for (var i = 0; i < state.game.scale; i++) {
+      Vue.set(state.game.cells, i, mergedCells[i]);
+    }
     state.game.status = GAME_STATUS_PLAYING;
   },
   deployUnit: state => {},
@@ -361,6 +416,61 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
   return true;
 };
 
+const rotateCells = originalCells => {
+  var rotatedCells = [];
+  for (var row = 0, i = originalCells.length - 1; i >= 0; i--, row++) {
+    rotatedCells[row] = [];
+    for (var col = 0, j = originalCells[row].length - 1; j >= 0; j--, col++) {
+      // TODO: rotate moves as well
+      rotatedCells[row][col] = originalCells[i][j];
+    }
+  }
+  return rotatedCells;
+};
+
+const mergeDeployments = (black, white, scale) => {
+  var cells = [];
+  const area = gamePresets[scale].deploymentArea;
+  for (var row = 0; row < scale; row++) {
+    if (row < scale - area) {
+      cells[row] = white[row];
+    } else if (row >= area) {
+      cells[row] = black[row - area];
+    } else {
+      cells[row] = [];
+      for (var col = 0; col < scale; col++) {
+        cells[row][col] = getEmptyCell(row, col);
+      }
+    }
+  }
+  return cells;
+};
+
+const extractDeploymentFromMap = (cells, scale) => {
+  var deployment = [];
+  const area = gamePresets[scale].deploymentArea;
+  for (var i = 0, row = area; row < scale; i++, row++) {
+    deployment[i] = cells[row].slice(0);
+  }
+  return deployment;
+};
+
+const getEmptyCell = (row, col) => {
+  return {
+    position: { row: row, col: col },
+    unit: {
+      player: "",
+      role: "",
+      moves: []
+    },
+    selected: false,
+    marked: false,
+    movable: false
+  };
+};
+
+const GAME_TURN_BLACK = "black";
+const GAME_TURN_WHITE = "white";
 const GAME_STATUS_INIT = "initGame";
 const GAME_STATUS_DEPLOYING = "deploying";
 const GAME_STATUS_PLAYING = "playing";
@@ -449,14 +559,14 @@ export const gamePresets = {
       { role: "", moves: [] },
       { role: "", moves: [] },
       { role: "", moves: [] },
+      { role: "", moves: [] },
+      { role: "", moves: [] },
+      { role: "", moves: [] },
+      { role: "", moves: [] },
+      { role: "", moves: [] },
       { role: "unit", moves: [3, 4, 2, 1, "*", 4, 2, 3, 1] },
       { role: "king", moves: [10, 10, 10, 10, "*", 10, 10, 10, 10] },
       { role: "king", moves: [5, 4, 3, 2, "*", 2, 4, 5, 3] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
       { role: "", moves: [] },
       { role: "", moves: [] },
       { role: "", moves: [] },
