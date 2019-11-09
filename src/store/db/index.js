@@ -113,6 +113,10 @@ export const actions = {
         }
       } else {
         if (isMovable(state, row, col) === true) {
+          if (state.game.cells[row][col].unit.role === constants.PIECE_KING) {
+            console.log("You win!");
+          }
+          commit("endGame");
           commit("takeUnit", { row, col });
           commit("markNextMove", { row, col });
           dispatch("moveUnit");
@@ -171,6 +175,9 @@ export const mutations = {
     state.game.status = constants.GAME_STATUS_PLAYING;
   },
   deployUnit: state => {},
+  endGame: state => {
+    state.game.status = constants.GAME_STATUS_END;
+  },
   selectCell: (state, { row, col }) => {
     var v = state.game.cells[row].slice(0);
     v[col].selected = true;
