@@ -65,42 +65,19 @@ export const actions = {
     );
 
     // Send player A's initial deployment
-    var blackDeployment = [];
-    var whiteDeployment = [];
-    if (state.player.action.turn === GAME_TURN_BLACK) {
-      blackDeployment = myDeployment;
-      // sendMyDeployment(blackDeployment)
-    } else if (state.player.action.turn === GAME_TURN_WHITE) {
-      whiteDeployment = rotateCells(myDeployment);
-      // sendMyDeployment(whiteDeployment)
-    }
+    // sendMyDeployment(myDeployment)
 
     // Receive player B's initial deployment
-    if (state.player.action.turn === GAME_TURN_BLACK) {
-      whiteDeployment = receiveOpponentDeployment(state);
-    } else if (state.player.action.turn === GAME_TURN_WHITE) {
-      blackDeployment = receiveOpponentDeployment(state);
-    }
+    const opponentDeployment = rotateCells(receiveOpponentDeployment(state));
 
     // Merge both deployments into one
-    // Manage cell data as same as what "Black" sees
     const mergedCells = mergeDeployments(
-      blackDeployment,
-      whiteDeployment,
+      myDeployment,
+      opponentDeployment,
       state.game.scale
     );
 
-    // Rotate the game board by 180 degree for "White" at visualization level
-    // TODO: Keep position in a cell so that it can be data level position
-    var finalizedCells = [];
-    if (state.player.action.turn === GAME_TURN_BLACK) {
-      finalizedCells = mergedCells;
-    }
-    if (state.player.action.turn === GAME_TURN_WHITE) {
-      finalizedCells = rotateCells(mergedCells);
-    }
-
-    commit("startGame", finalizedCells);
+    commit("startGame", mergedCells);
   },
   deployUnit: async ({ commit }) => {
     commit("deployUnit");
@@ -429,14 +406,14 @@ const rotateCells = originalCells => {
   return rotatedCells;
 };
 
-const mergeDeployments = (black, white, scale) => {
+const mergeDeployments = (myDeployment, opponentDeployment, scale) => {
   var cells = [];
   const area = gamePresets[scale].deploymentArea;
   for (var row = 0; row < scale; row++) {
     if (row < scale - area) {
-      cells[row] = white[row];
+      cells[row] = opponentDeployment[row];
     } else if (row >= area) {
-      cells[row] = black[row - area];
+      cells[row] = myDeployment[row - area];
     } else {
       cells[row] = [];
       for (var col = 0; col < scale; col++) {
