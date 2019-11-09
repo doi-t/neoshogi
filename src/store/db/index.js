@@ -54,8 +54,8 @@ export const actions = {
   initGame: async ({ commit }, scale) => {
     // Decide which is "Black" and which is "White"
     // FIXME randomize it
-    // commit("initGame", scale, constants.GAME_TURN_BLACK);
-    commit("initGame", { scale: scale, turn: constants.GAME_TURN_WHITE });
+    commit("initGame", { scale: scale, turn: constants.GAME_TURN_BLACK });
+    // commit("initGame", { scale: scale, turn: constants.GAME_TURN_WHITE });
   },
   startGame: async ({ commit, state, dispatch }) => {
     dispatch("resetAction");
@@ -65,10 +65,11 @@ export const actions = {
       state.game.scale
     );
 
-    // Send player A's initial deployment
+    // Send my initial deployment as it is regardless of black/white
     // sendMyDeployment(myDeployment)
 
-    // Receive player B's initial deployment
+    // Receive opponent initial deployment
+    // Always rotate the received deployment regardless of black/white
     const opponentDeployment = rotateCells(receiveOpponentDeployment(state));
 
     // Merge both deployments into one
@@ -466,9 +467,6 @@ const receiveOpponentDeployment = state => {
     tmpCells,
     state.game.scale
   );
-  if (state.player.action.turn === constants.GAME_TURN_BLACK) {
-    return rotateCells(opponentDeployment);
-  } else if (state.player.action.turn === constants.GAME_TURN_WHITE) {
-    return opponentDeployment;
-  }
+
+  return opponentDeployment;
 };
