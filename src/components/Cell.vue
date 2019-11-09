@@ -31,6 +31,7 @@
 import Unit from "~/components/Unit.vue";
 import UnitConfig from "~/components/UnitConfig.vue";
 import { mapState, mapGetters } from "vuex";
+import constants from "@/store/db/constants";
 export default {
   name: "Cell",
   props: ["row", "col"],
@@ -40,7 +41,8 @@ export default {
   }),
   computed: {
     ...mapState({
-      speeds: state => state.db.player.storage.speeds
+      speeds: state => state.db.player.storage.speeds,
+      gamePhase: state => state.db.game.status
     }),
     ...mapGetters({
       getCell: "db/getCell",
@@ -52,8 +54,13 @@ export default {
       this.$store.dispatch("db/updateCell", { row: this.row, col: this.col });
     },
     openDialog() {
-      if (this.$store.state.db.player.action.unitConfigDialog)
-        this.dialog = true;
+      if (
+        this.gamePhase === constants.GAME_STATUS_INIT ||
+        this.gamePhase === constants.GAME_STATUS_DEPLOYING
+      ) {
+        if (this.$store.state.db.player.action.unitConfigDialog)
+          this.dialog = true;
+      }
     },
     closeDialog() {
       this.$store.dispatch("db/setUnitConfigDialog", { toggle: false });
