@@ -21,7 +21,7 @@ export const state = () => ({
       unitConfigDialog: false
     },
     storage: {
-      units: 0,
+      units: [],
       speeds: 0
     }
   },
@@ -124,7 +124,7 @@ export const actions = {
             commit("endGame");
             console.log("You win!");
           }
-          commit("takeUnit", { row, col });
+          if (isOpponentUnit(state, row, col)) commit("takeUnit", { row, col });
           commit("markNextMove", { row, col });
           dispatch("moveUnit");
         }
@@ -176,7 +176,7 @@ export const mutations = {
       unitConfigDialog: false
     };
     state.player.storage = {
-      units: 0,
+      units: [],
       speeds: 10
     };
   },
@@ -228,13 +228,14 @@ export const mutations = {
   },
   takeUnit: (state, { row, col }) => {
     var cell = state.game.cells[row].slice(0);
+    cell[col].unit.player = state.player.profile.name;
+    state.player.storage.units.push(cell[col].unit);
     cell[col].unit = {
       player: "",
       role: "",
       moves: []
     };
     Vue.set(state.game.cells, row, cell);
-    state.player.storage.units++;
   },
   moveUnit: state => {
     const selectedRow = state.player.action.selectedCell.row;
@@ -304,6 +305,15 @@ const generateGameMap = (scale, playerName, turn) => {
 const isUnitOwner = (state, row, col) => {
   const unitOwner = state.game.cells[row][col].unit.player;
   if (unitOwner != state.player.profile.name) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
+const isOpponentUnit = (state, row, col) => {
+  const unitOwner = state.game.cells[row][col].unit.player;
+  if (unitOwner != state.player.opponent.profile.name) {
     return false;
   } else {
     return true;

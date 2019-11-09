@@ -23,7 +23,7 @@
 import { mapState } from "vuex";
 export default {
   name: "Unit",
-  props: ["unit", "unitConfig"],
+  props: ["unit"],
   computed: {
     ...mapState({
       playerName: state => state.db.player.profile.name
