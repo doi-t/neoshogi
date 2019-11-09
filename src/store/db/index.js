@@ -137,7 +137,6 @@ export const actions = {
   }
 };
 
-// TODO: Unifiy the style of argument. Do not need to use dict.
 export const mutations = {
   setPlayer: (state, playerInfo) => {
     state.player.profile = playerInfo;
@@ -165,9 +164,7 @@ export const mutations = {
     };
   },
   startGame: (state, mergedCells) => {
-    for (var i = 0; i < state.game.scale; i++) {
-      Vue.set(state.game.cells, i, mergedCells[i]);
-    }
+    state.game.cells = JSON.parse(JSON.stringify(mergedCells));
     state.game.status = constants.GAME_STATUS_PLAYING;
   },
   deployUnit: state => {},
@@ -253,19 +250,21 @@ const generateGameMap = (scale, playerName, turn) => {
         var position = { row: scale - 1 - row, col: scale - 1 - col };
       }
       // Initialize data schema of each cell
-      cells[row][col] = {
-        position: position,
-        unit: {
-          player: constants.gamePresets[scale].units[row * scale + col].role
-            ? playerName
-            : "",
-          role: constants.gamePresets[scale].units[row * scale + col].role,
-          moves: constants.gamePresets[scale].units[row * scale + col].moves
-        },
-        selected: false,
-        marked: false,
-        movable: false
-      };
+      cells[row][col] = JSON.parse(
+        JSON.stringify({
+          position: position,
+          unit: {
+            player: constants.gamePresets[scale].units[row * scale + col].role
+              ? playerName
+              : "",
+            role: constants.gamePresets[scale].units[row * scale + col].role,
+            moves: constants.gamePresets[scale].units[row * scale + col].moves
+          },
+          selected: false,
+          marked: false,
+          movable: false
+        })
+      );
     }
   }
   return cells;
@@ -414,9 +413,9 @@ const mergeDeployments = (myDeployment, opponentDeployment, scale, turn) => {
   const area = constants.gamePresets[scale].deploymentArea;
   for (var row = 0; row < scale; row++) {
     if (row < scale - area) {
-      cells[row] = opponentDeployment[row];
+      cells[row] = JSON.parse(JSON.stringify(opponentDeployment[row]));
     } else if (row >= area) {
-      cells[row] = myDeployment[row - area];
+      cells[row] = JSON.parse(JSON.stringify(myDeployment[row - area]));
     } else {
       cells[row] = [];
       for (var col = 0; col < scale; col++) {
