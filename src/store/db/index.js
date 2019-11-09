@@ -1,5 +1,6 @@
 import { db } from "@/plugins/firebase";
 import Vue from "vue";
+import constants from "@/store/db/constants";
 
 export const state = () => ({
   player: {
@@ -20,7 +21,7 @@ export const state = () => ({
     }
   },
   game: {
-    status: GAME_STATUS_INIT,
+    status: constants.GAME_STATUS_INIT,
     scale: 0,
     cells: []
   }
@@ -53,8 +54,8 @@ export const actions = {
   initGame: async ({ commit }, scale) => {
     // Decide which is "Black" and which is "White"
     // FIXME randomize it
-    // commit("initGame", scale, GAME_TURN_BLACK);
-    commit("initGame", { scale: scale, turn: GAME_TURN_WHITE });
+    // commit("initGame", scale, constants.GAME_TURN_BLACK);
+    commit("initGame", { scale: scale, turn: constants.GAME_TURN_WHITE });
   },
   startGame: async ({ commit, state, dispatch }) => {
     dispatch("resetAction");
@@ -99,7 +100,7 @@ export const actions = {
       }
     } else if (state.player.action.selected) {
       if (isUnitOwner(state, row, col)) {
-        if (state.game.status === GAME_STATUS_INIT) {
+        if (state.game.status === constants.GAME_STATUS_INIT) {
           if (isMovable(state, row, col) === true) {
             commit("markNextMove", { row, col });
             dispatch("moveUnit");
@@ -145,7 +146,7 @@ export const mutations = {
   },
   initGame: (state, { scale, turn }) => {
     state.game.scale = scale;
-    state.game.status = GAME_STATUS_INIT;
+    state.game.status = constants.GAME_STATUS_INIT;
     const cells = generateGameMap(scale, state.player.profile.name, turn);
     Vue.set(state.game, "cells", cells);
     // Initialize player.action
@@ -166,7 +167,7 @@ export const mutations = {
     for (var i = 0; i < state.game.scale; i++) {
       Vue.set(state.game.cells, i, mergedCells[i]);
     }
-    state.game.status = GAME_STATUS_PLAYING;
+    state.game.status = constants.GAME_STATUS_PLAYING;
   },
   deployUnit: state => {},
   selectCell: (state, { row, col }) => {
@@ -245,20 +246,20 @@ const generateGameMap = (scale, playerName, turn) => {
     cells[row] = [];
     for (col = 0; col < scale; col++) {
       // Rotate the game board by 180 degree for "White" at data level
-      if (turn === GAME_TURN_BLACK) {
+      if (turn === constants.GAME_TURN_BLACK) {
         var position = { row: row, col: col };
-      } else if (turn === GAME_TURN_WHITE) {
+      } else if (turn === constants.GAME_TURN_WHITE) {
         var position = { row: scale - 1 - row, col: scale - 1 - col };
       }
       // Initialize data schema of each cell
       cells[row][col] = {
         position: position,
         unit: {
-          player: gamePresets[scale].units[row * scale + col].role
+          player: constants.gamePresets[scale].units[row * scale + col].role
             ? playerName
             : "",
-          role: gamePresets[scale].units[row * scale + col].role,
-          moves: gamePresets[scale].units[row * scale + col].moves
+          role: constants.gamePresets[scale].units[row * scale + col].role,
+          moves: constants.gamePresets[scale].units[row * scale + col].moves
         },
         selected: false,
         marked: false,
@@ -279,14 +280,15 @@ const isUnitOwner = (state, row, col) => {
 };
 
 const canDeployUnit = (state, row) => {
-  if (state.game.status !== GAME_STATUS_PLAYING) {
-    if (row < gamePresets[state.game.scale].deploymentArea) return false;
+  if (state.game.status !== constants.GAME_STATUS_PLAYING) {
+    if (row < constants.gamePresets[state.game.scale].deploymentArea)
+      return false;
   }
   return true;
 };
 
 const isMovable = (state, row, col) => {
-  if (state.game.status === GAME_STATUS_INIT) {
+  if (state.game.status === constants.GAME_STATUS_INIT) {
     if (canDeployUnit(state, row)) return true;
     else return false;
   }
@@ -303,30 +305,30 @@ const isMovable = (state, row, col) => {
   const sCol = state.player.action.selectedCell.col;
   const moves = state.game.cells[sRow][sCol].unit.moves;
   if (x < 0 && y < 0) {
-    if (distance > moves[UPLEFT]) return false;
+    if (distance > moves[constants.UPLEFT]) return false;
   } else if (x < 0 && y === 0) {
-    if (distance > moves[UP]) return false;
+    if (distance > moves[constants.UP]) return false;
   } else if (x < 0 && 0 < y) {
-    if (distance > moves[UPRIGHT]) return false;
+    if (distance > moves[constants.UPRIGHT]) return false;
   } else if (x === 0 && y < 0) {
-    if (distance > moves[LEFT]) return false;
+    if (distance > moves[constants.LEFT]) return false;
   } else if (x === 0 && y === 0) {
-    if (distance > moves[CENTER]) return false;
+    if (distance > moves[constants.CENTER]) return false;
   } else if (x === 0 && 0 < y) {
-    if (distance > moves[RIGHT]) return false;
+    if (distance > moves[constants.RIGHT]) return false;
   } else if (0 < x && y < 0) {
-    if (distance > moves[DOWNLEFT]) return false;
+    if (distance > moves[constants.DOWNLEFT]) return false;
   } else if (0 < x && y === 0) {
-    if (distance > moves[DOWN]) return false;
+    if (distance > moves[constants.DOWN]) return false;
   } else if (0 < x && 0 < y) {
-    if (distance > moves[DOWNRIGHT]) return false;
+    if (distance > moves[constants.DOWNRIGHT]) return false;
   }
   return true;
 };
 
 const markMovableCells = (state, row, col, mark) => {
-  if (state.game.status === GAME_STATUS_INIT) {
-    var area = gamePresets[state.game.scale].deploymentArea;
+  if (state.game.status === constants.GAME_STATUS_INIT) {
+    var area = constants.gamePresets[state.game.scale].deploymentArea;
     var areaRow, areaCol;
     for (areaRow = area; areaRow < state.game.scale; areaRow++) {
       for (areaCol = 0; areaCol <= state.game.scale; areaCol++)
@@ -339,35 +341,35 @@ const markMovableCells = (state, row, col, mark) => {
   var direction, n;
   for (direction = 0; direction < moves.length; direction++) {
     var speed = moves[direction];
-    if (direction === UPLEFT) {
+    if (direction === constants.UPLEFT) {
       for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row - n, col - n, mark)) break;
     }
-    if (direction === UP) {
+    if (direction === constants.UP) {
       for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row - n, col, mark)) break;
     }
-    if (direction === UPRIGHT) {
+    if (direction === constants.UPRIGHT) {
       for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row - n, col + n, mark)) break;
     }
-    if (direction === LEFT) {
+    if (direction === constants.LEFT) {
       for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row, col - n, mark)) break;
     }
-    if (direction === RIGHT) {
+    if (direction === constants.RIGHT) {
       for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row, col + n, mark)) break;
     }
-    if (direction === DOWNLEFT) {
+    if (direction === constants.DOWNLEFT) {
       for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row + n, col - n, mark)) break;
     }
-    if (direction === DOWN) {
+    if (direction === constants.DOWN) {
       for (n = 1; n <= speed; n++)
         if (!markMovableCell(state, row, col, row + n, col, mark)) break;
     }
-    if (direction === DOWNRIGHT) {
+    if (direction === constants.DOWNRIGHT) {
       for (n = 1; n <= speed; n++) {
         if (!markMovableCell(state, row, col, row + n, col + n, mark)) break;
       }
@@ -384,7 +386,7 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
   const fromCell = state.game.cells[fromRow][fromCol];
   const toCell = state.game.cells[toRow][toCol];
   if (
-    state.game.status !== GAME_STATUS_INIT &&
+    state.game.status !== constants.GAME_STATUS_INIT &&
     toCell.unit.player === fromCell.unit.player
   )
     return false;
@@ -408,7 +410,7 @@ const rotateCells = originalCells => {
 
 const mergeDeployments = (myDeployment, opponentDeployment, scale) => {
   var cells = [];
-  const area = gamePresets[scale].deploymentArea;
+  const area = constants.gamePresets[scale].deploymentArea;
   for (var row = 0; row < scale; row++) {
     if (row < scale - area) {
       cells[row] = opponentDeployment[row];
@@ -426,7 +428,7 @@ const mergeDeployments = (myDeployment, opponentDeployment, scale) => {
 
 const extractDeploymentFromMap = (cells, scale) => {
   var deployment = [];
-  const area = gamePresets[scale].deploymentArea;
+  const area = constants.gamePresets[scale].deploymentArea;
   for (var i = 0, row = area; row < scale; i++, row++) {
     deployment[i] = cells[row].slice(0);
   }
@@ -448,224 +450,18 @@ const getEmptyCell = (row, col) => {
 };
 
 const receiveOpponentDeployment = state => {
-  var opponentTurn = GAME_TURN_WHITE;
-  if (state.player.action.turn === GAME_TURN_WHITE) {
-    opponentTurn = GAME_TURN_BLACK;
+  var opponentTurn = constants.GAME_TURN_WHITE;
+  if (state.player.action.turn === constants.GAME_TURN_WHITE) {
+    opponentTurn = constants.GAME_TURN_BLACK;
   }
   const tmpCells = generateGameMap(state.game.scale, "Player B", opponentTurn);
   const opponentDeployment = extractDeploymentFromMap(
     tmpCells,
     state.game.scale
   );
-  if (state.player.action.turn === GAME_TURN_BLACK) {
+  if (state.player.action.turn === constants.GAME_TURN_BLACK) {
     return rotateCells(opponentDeployment);
-  } else if (state.player.action.turn === GAME_TURN_WHITE) {
+  } else if (state.player.action.turn === constants.GAME_TURN_WHITE) {
     return opponentDeployment;
-  }
-};
-
-const GAME_TURN_BLACK = "black";
-const GAME_TURN_WHITE = "white";
-const GAME_STATUS_INIT = "initGame";
-const GAME_STATUS_DEPLOYING = "deploying";
-const GAME_STATUS_PLAYING = "playing";
-const GAME_STATUS_END = "endGame";
-// Initial unit arrangement and move powers
-// role: "", "unit" or "king"
-// moves: upLeft, up, upRight, left, center, right, downLeft, down, downRight
-// e.g. moves: [0, 1, 0, 0, "*", 0, 0, 0, 0];
-const UPLEFT = 0;
-const UP = 1;
-const UPRIGHT = 2;
-const LEFT = 3;
-const CENTER = 4;
-const RIGHT = 5;
-const DOWNLEFT = 6;
-const DOWN = 7;
-const DOWNRIGHT = 8;
-export const gamePresets = {
-  "3": {
-    deploymentArea: 2,
-    units: [
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "unit", moves: [4, 4, 4, 4, "*", 3, 3, 3, 3] },
-      { role: "king", moves: [1, 1, 1, 1, "*", 1, 1, 1, 1] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] }
-    ]
-  },
-  "5": {
-    deploymentArea: 3,
-    units: [
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [3, 4, 2, 1, "*", 4, 2, 3, 1] },
-      { role: "unit", moves: [10, 10, 10, 10, "*", 10, 10, 10, 10] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "", moves: [] },
-      { role: "unit", moves: [1, 1, 1, 1, "*", 1, 0, 1, 0] },
-      { role: "king", moves: [1, 1, 1, 1, "*", 1, 1, 1, 1] },
-      { role: "unit", moves: [1, 1, 1, 1, "*", 1, 0, 1, 0] },
-      { role: "", moves: [] }
-    ]
-  },
-  "7": {
-    deploymentArea: 4,
-    units: [
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "unit", moves: [3, 4, 2, 1, "*", 4, 2, 3, 1] },
-      { role: "king", moves: [10, 10, 10, 10, "*", 10, 10, 10, 10] },
-      { role: "king", moves: [5, 4, 3, 2, "*", 2, 4, 5, 3] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "unit", moves: [1, 0, 1, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [1, 1, 1, 0, "*", 0, 1, 0, 1] },
-      { role: "unit", moves: [1, 1, 1, 1, "*", 1, 0, 1, 0] },
-      { role: "king", moves: [1, 1, 1, 1, "*", 1, 1, 1, 1] },
-      { role: "unit", moves: [1, 1, 1, 1, "*", 1, 0, 1, 0] },
-      { role: "unit", moves: [1, 1, 1, 0, "*", 0, 1, 0, 1] },
-      { role: "unit", moves: [1, 0, 1, 0, "*", 0, 0, 0, 0] }
-    ]
-  },
-  "9": {
-    deploymentArea: 6,
-    units: [
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "", moves: [] },
-      { role: "unit", moves: [10, 0, 10, 0, "*", 0, 10, 0, 10] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "", moves: [] },
-      { role: "unit", moves: [0, 10, 0, 10, "*", 10, 0, 10, 0] },
-      { role: "", moves: [] },
-      { role: "unit", moves: [0, 10, 0, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [1, 0, 1, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [1, 1, 1, 0, "*", 0, 1, 0, 1] },
-      { role: "unit", moves: [1, 1, 1, 1, "*", 1, 0, 1, 0] },
-      { role: "king", moves: [1, 1, 1, 1, "*", 1, 1, 1, 1] },
-      { role: "unit", moves: [1, 1, 1, 1, "*", 1, 0, 1, 0] },
-      { role: "unit", moves: [1, 1, 1, 0, "*", 0, 1, 0, 1] },
-      { role: "unit", moves: [1, 0, 1, 0, "*", 0, 0, 0, 0] },
-      { role: "unit", moves: [0, 10, 0, 0, "*", 0, 0, 0, 0] }
-    ]
   }
 };
