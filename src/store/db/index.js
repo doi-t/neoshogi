@@ -64,23 +64,22 @@ export const actions = {
       state.game.scale
     );
 
-    // Receive player B's initial deployment
-    const tmpCells = generateGameMap(state.game.scale, "Player B");
-    const opponentDeployment = extractDeploymentFromMap(
-      tmpCells,
-      state.game.scale
-    ); // FIXME
-
-    // Rotate the game board by 180 degree for "White" at data level
+    // Send player A's initial deployment
     var blackDeployment = [];
     var whiteDeployment = [];
-    console.log(state.player.action.turn);
     if (state.player.action.turn === GAME_TURN_BLACK) {
       blackDeployment = myDeployment;
-      whiteDeployment = rotateCells(opponentDeployment);
+      // sendMyDeployment(blackDeployment)
     } else if (state.player.action.turn === GAME_TURN_WHITE) {
-      blackDeployment = opponentDeployment;
       whiteDeployment = rotateCells(myDeployment);
+      // sendMyDeployment(whiteDeployment)
+    }
+
+    // Receive player B's initial deployment
+    if (state.player.action.turn === GAME_TURN_BLACK) {
+      whiteDeployment = receiveOpponentDeployment(state);
+    } else if (state.player.action.turn === GAME_TURN_WHITE) {
+      blackDeployment = receiveOpponentDeployment(state);
     }
 
     // Merge both deployments into one
@@ -262,15 +261,21 @@ export const mutations = {
   }
 };
 
-const generateGameMap = (scale, playerName) => {
+const generateGameMap = (scale, playerName, turn) => {
   var cells = [];
   var row, col;
   for (row = 0; row < scale; row++) {
     cells[row] = [];
     for (col = 0; col < scale; col++) {
+      // Rotate the game board by 180 degree for "White" at data level
+      if (turn === GAME_TURN_BLACK) {
+        var position = { row: row, col: col };
+      } else if (turn === GAME_TURN_WHITE) {
+        var position = { row: scale - 1 - row, col: scale - 1 - col };
+      }
       // Initialize data schema of each cell
       cells[row][col] = {
-        position: { row: row, col: col },
+        position: position,
         unit: {
           player: gamePresets[scale].units[row * scale + col].role
             ? playerName
@@ -418,7 +423,6 @@ const rotateCells = originalCells => {
   for (var row = 0, i = originalCells.length - 1; i >= 0; i--, row++) {
     rotatedCells[row] = [];
     for (var col = 0, j = originalCells[row].length - 1; j >= 0; j--, col++) {
-      // TODO: rotate moves as well
       rotatedCells[row][col] = originalCells[i][j];
     }
   }
@@ -464,6 +468,23 @@ const getEmptyCell = (row, col) => {
     marked: false,
     movable: false
   };
+};
+
+const receiveOpponentDeployment = state => {
+  var opponentTurn = GAME_TURN_WHITE;
+  if (state.player.action.turn === GAME_TURN_WHITE) {
+    opponentTurn = GAME_TURN_BLACK;
+  }
+  const tmpCells = generateGameMap(state.game.scale, "Player B", opponentTurn);
+  const opponentDeployment = extractDeploymentFromMap(
+    tmpCells,
+    state.game.scale
+  );
+  if (state.player.action.turn === GAME_TURN_BLACK) {
+    return rotateCells(opponentDeployment);
+  } else if (state.player.action.turn === GAME_TURN_WHITE) {
+    return opponentDeployment;
+  }
 };
 
 const GAME_TURN_BLACK = "black";
