@@ -51,16 +51,14 @@ export const actions = {
     }
   },
   initGame: async ({ commit }, scale) => {
-    commit("initGame", { scale });
+    // Decide which is "Black" and which is "White"
+    // FIXME randomize it
+    // commit("initGame", scale, GAME_TURN_BLACK);
+    commit("initGame", { scale: scale, turn: GAME_TURN_WHITE });
   },
   startGame: async ({ commit, state, dispatch }) => {
     dispatch("resetAction");
 
-    // Decide which is "Black" and which is "White"
-    commit("setPlayerTurn", GAME_TURN_BLACK); // FIXME randomize it
-    // commit("setPlayerTurn", GAME_TURN_WHITE); // FIXME randomize it
-
-    // Send player A's initial deployment
     var myDeployment = extractDeploymentFromMap(
       state.game.cells,
       state.game.scale
@@ -166,18 +164,17 @@ export const mutations = {
   setPlayer: (state, playerInfo) => {
     state.player.profile = playerInfo;
   },
-  setPlayerTurn: (state, turn) => {
-    state.player.action.turn = turn;
-  },
   setUnitConfigDialog: (state, { toggle }) => {
     state.player.action.unitConfigDialog = toggle;
   },
-  initGame: (state, { scale }) => {
+  initGame: (state, { scale, turn }) => {
     state.game.scale = scale;
     state.game.status = GAME_STATUS_INIT;
-    const cells = generateGameMap(scale, state.player.profile.name);
+    const cells = generateGameMap(scale, state.player.profile.name, turn);
     Vue.set(state.game, "cells", cells);
+    // Initialize player.action
     state.player.action = {
+      turn: turn,
       selected: false,
       selectedCell: { row: null, col: null },
       marked: false,
