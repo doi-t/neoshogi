@@ -6,6 +6,8 @@
       class="ma-0 pa-0"
       @click.stop="updateCell(); openDialog()"
     >
+      <div>{{ row }}:{{ col }}({{ getCell(row, col).position.row }}:{{ getCell(row, col).position.col }})</div>
+
       <Unit :unit="getCell(row, col).unit" />
     </v-card>
     <v-dialog v-model="dialog" persistent max-width="400">

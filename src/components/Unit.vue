@@ -12,7 +12,7 @@
           <div
             class="justify-center align-center text-center ma-0 pa-0"
             style="font-size: 10px; width: 16px; height: 16px;"
-          >{{ unit.moves[rowIndex * 3 + colIndex] }}</div>
+          >{{ getMoves(rowIndex, colIndex) }}</div>
         </v-col>
       </v-row>
     </v-card>
@@ -20,9 +20,23 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
   name: "Unit",
   props: ["unit", "unitConfig"],
-  computed: {}
+  computed: {
+    ...mapState({
+      playerName: state => state.db.player.profile.name
+    })
+  },
+  methods: {
+    getMoves(row, col) {
+      if (this.playerName !== this.unit.player) {
+        return this.unit.moves[8 - (row * 3 + col)];
+      } else {
+        return this.unit.moves[row * 3 + col];
+      }
+    }
+  }
 };
 </script>
