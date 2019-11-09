@@ -51,11 +51,10 @@ export const actions = {
       await userDocRef.set({ name: "test player1" });
     }
   },
-  initGame: async ({ commit }, scale) => {
+  initGame: async ({ commit }, { scale, turn }) => {
     // Decide which is "Black" and which is "White"
     // FIXME randomize it
-    commit("initGame", { scale: scale, turn: constants.GAME_TURN_BLACK });
-    // commit("initGame", { scale: scale, turn: constants.GAME_TURN_WHITE });
+    commit("initGame", { scale: scale, turn: turn });
   },
   startGame: async ({ commit, state, dispatch }) => {
     dispatch("resetAction");
