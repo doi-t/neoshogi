@@ -121,9 +121,9 @@ export const actions = {
       } else {
         if (isMovable(state, row, col) === true) {
           if (state.game.cells[row][col].unit.role === constants.PIECE_KING) {
+            commit("endGame");
             console.log("You win!");
           }
-          commit("endGame");
           commit("takeUnit", { row, col });
           commit("markNextMove", { row, col });
           dispatch("moveUnit");
@@ -362,8 +362,9 @@ const markMovableCells = (state, row, col, mark) => {
     var area = constants.gamePresets[state.game.scale].deploymentArea;
     var areaRow, areaCol;
     for (areaRow = area; areaRow < state.game.scale; areaRow++) {
-      for (areaCol = 0; areaCol <= state.game.scale; areaCol++)
+      for (areaCol = 0; areaCol <= state.game.scale; areaCol++) {
         markMovableCell(state, row, col, areaRow, areaCol, mark);
+      }
     }
     return;
   }
