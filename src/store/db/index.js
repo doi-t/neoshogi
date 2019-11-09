@@ -111,9 +111,12 @@ export const actions = {
           commit("resetMarkAction");
           commit("selectCell", { row, col });
         }
-      } else if (isMovable(state, row, col) === true) {
-        commit("markNextMove", { row, col });
-        dispatch("moveUnit");
+      } else {
+        if (isMovable(state, row, col) === true) {
+          commit("takeUnit", { row, col });
+          commit("markNextMove", { row, col });
+          dispatch("moveUnit");
+        }
       }
     }
   },
@@ -159,7 +162,7 @@ export const mutations = {
       unitConfigDialog: false
     };
     state.player.storage = {
-      units: 10,
+      units: 0,
       speeds: 10
     };
   },
@@ -178,10 +181,11 @@ export const mutations = {
   },
   markNextMove: (state, { row, col }) => {
     // Reset the previous marked status
-    if (state.player.action.marked)
+    if (state.player.action.marked) {
       state.game.cells[state.player.action.markedCell.row][
         state.player.action.markedCell.col
       ].marked = false;
+    }
     var v = state.game.cells[row].slice(0);
     v[col].marked = true;
     Vue.set(state.game.cells, row, v);
@@ -205,6 +209,16 @@ export const mutations = {
     state.player.action.marked = false;
     state.player.action.markedCell = { row: null, col: null };
   },
+  takeUnit: (state, { row, col }) => {
+    var cell = state.game.cells[row].slice(0);
+    cell[col].unit = {
+      player: "",
+      role: "",
+      moves: []
+    };
+    Vue.set(state.game.cells, row, cell);
+    state.player.storage.units++;
+  },
   moveUnit: state => {
     const selectedRow = state.player.action.selectedCell.row;
     const selectedCol = state.player.action.selectedCell.col;
@@ -214,7 +228,7 @@ export const mutations = {
     // Reset movable marks before moving a selected unit
     markMovableCells(state, selectedRow, selectedCol, false);
 
-    // Replace a marked cell to a selected cell
+    // Replace a unit in the marked cell to a selected cell
     // The validation should be done in advance
     const selectedTmp = state.game.cells[selectedRow][selectedCol].unit;
     const markedTmp = state.game.cells[markedRow][markedCol].unit;
