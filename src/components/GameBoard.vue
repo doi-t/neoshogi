@@ -6,16 +6,23 @@
           <v-select v-model="selectedScale" :items="scales" label="Choose a game scale"></v-select>
         </v-card>
       </v-col>
-      <v-col cols="10">
+      <v-col cols="2">
         <v-card>
-          <v-card-actions>
-            <v-btn @click="initiateGame()">initiate</v-btn>
-            <v-btn @click="startGame()">startGame</v-btn>
-            <v-btn @click="deployUnit()">deploy</v-btn>
-            <v-btn @click="resetAction()">reset</v-btn>
-            <v-btn @click="moveUnit()">move a unit</v-btn>
-            <v-btn color="#E53935">Give Up</v-btn>
-          </v-card-actions>
+          <v-select v-model="selectedTurn" :items="blackWhite" label="Choose your turn"></v-select>
+        </v-card>
+      </v-col>
+      <v-col cols="8">
+        <v-card>
+          <div class="text-center justify-center align-center d-flex">
+            <v-card-actions>
+              <v-btn @click="initiateGame()">initiate</v-btn>
+              <v-btn @click="startGame()">startGame</v-btn>
+              <v-btn @click="deployUnit()">deploy</v-btn>
+              <v-btn @click="resetAction()">reset</v-btn>
+              <v-btn @click="moveUnit()">move a unit</v-btn>
+              <v-btn color="#E53935">Give Up</v-btn>
+            </v-card-actions>
+          </div>
         </v-card>
       </v-col>
       <v-col cols="12">
@@ -48,6 +55,7 @@
 <script>
 import Cell from "~/components/Cell.vue";
 import { mapState } from "vuex";
+import constants from "@/store/db/constants";
 export default {
   name: "GameBoard",
   components: {
@@ -55,7 +63,9 @@ export default {
   },
   data: () => ({
     selectedScale: 3,
-    scales: [3, 5, 7, 9]
+    scales: [3, 5, 7, 9],
+    selectedTurn: constants.GAME_TURN_BLACK,
+    blackWhite: [constants.GAME_TURN_BLACK, constants.GAME_TURN_WHITE]
   }),
   computed: {
     ...mapState({
@@ -64,11 +74,17 @@ export default {
     })
   },
   async mounted(store) {
-    this.$store.dispatch("db/initGame", this.selectedScale);
+    this.$store.dispatch("db/initGame", {
+      scale: this.selectedScale,
+      turn: this.selectedTurn
+    });
   },
   methods: {
     initiateGame() {
-      this.$store.dispatch("db/initGame", this.selectedScale);
+      this.$store.dispatch("db/initGame", {
+        scale: this.selectedScale,
+        turn: this.selectedTurn
+      });
     },
     startGame() {
       this.$store.dispatch("db/startGame", this.selectedScale);
