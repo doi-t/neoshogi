@@ -7,6 +7,11 @@ export const state = () => ({
     profile: {
       name: null
     },
+    opponent: {
+      profile: {
+        name: null
+      }
+    },
     action: {
       turn: "", // "black" or "white"
       selected: false,
@@ -53,6 +58,8 @@ export const actions = {
   },
   initGame: async ({ commit }, { scale, turn }) => {
     // Decide which is "Black" and which is "White"
+    // FIXME Receive opponent name
+    commit("setOpponentProfile", "Player B");
     // FIXME randomize it
     commit("initGame", { scale: scale, turn: turn });
   },
@@ -147,6 +154,9 @@ export const actions = {
 export const mutations = {
   setPlayer: (state, playerInfo) => {
     state.player.profile = playerInfo;
+  },
+  setOpponentProfile: (state, name) => {
+    state.player.opponent.profile.name = name;
   },
   setUnitConfigDialog: (state, { toggle }) => {
     state.player.action.unitConfigDialog = toggle;
@@ -362,47 +372,113 @@ const markMovableCells = (state, row, col, mark) => {
   var direction, n;
   for (direction = 0; direction < moves.length; direction++) {
     var speed = moves[direction];
+    var rst = {};
+    var cellPlayer = "";
     if (direction === constants.UPLEFT) {
-      for (n = 1; n <= speed; n++)
-        if (!markMovableCell(state, row, col, row - n, col - n, mark)) break;
+      for (n = 1; n <= speed; n++) {
+        rst = markMovableCell(state, row, col, row - n, col - n, mark);
+        if (!rst.marked) break;
+        cellPlayer = rst.markedCell.unit.player;
+        if (
+          mark === true &&
+          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+        )
+          break;
+      }
     }
     if (direction === constants.UP) {
-      for (n = 1; n <= speed; n++)
-        if (!markMovableCell(state, row, col, row - n, col, mark)) break;
+      for (n = 1; n <= speed; n++) {
+        rst = markMovableCell(state, row, col, row - n, col, mark);
+        if (!rst.marked) break;
+        cellPlayer = rst.markedCell.unit.player;
+        if (
+          mark === true &&
+          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+        )
+          break;
+      }
     }
     if (direction === constants.UPRIGHT) {
-      for (n = 1; n <= speed; n++)
-        if (!markMovableCell(state, row, col, row - n, col + n, mark)) break;
+      for (n = 1; n <= speed; n++) {
+        rst = markMovableCell(state, row, col, row - n, col + n, mark);
+        if (!rst.marked) break;
+        cellPlayer = rst.markedCell.unit.player;
+        if (
+          mark === true &&
+          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+        )
+          break;
+      }
     }
     if (direction === constants.LEFT) {
-      for (n = 1; n <= speed; n++)
-        if (!markMovableCell(state, row, col, row, col - n, mark)) break;
+      for (n = 1; n <= speed; n++) {
+        rst = markMovableCell(state, row, col, row, col - n, mark);
+        if (!rst.marked) break;
+        cellPlayer = rst.markedCell.unit.player;
+        if (
+          mark === true &&
+          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+        )
+          break;
+      }
     }
     if (direction === constants.RIGHT) {
-      for (n = 1; n <= speed; n++)
-        if (!markMovableCell(state, row, col, row, col + n, mark)) break;
+      for (n = 1; n <= speed; n++) {
+        rst = markMovableCell(state, row, col, row, col + n, mark);
+        if (!rst.marked) break;
+        cellPlayer = rst.markedCell.unit.player;
+        if (
+          mark === true &&
+          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+        )
+          break;
+      }
     }
     if (direction === constants.DOWNLEFT) {
-      for (n = 1; n <= speed; n++)
-        if (!markMovableCell(state, row, col, row + n, col - n, mark)) break;
+      for (n = 1; n <= speed; n++) {
+        rst = markMovableCell(state, row, col, row + n, col - n, mark);
+        if (!rst.marked) break;
+        cellPlayer = rst.markedCell.unit.player;
+        if (
+          mark === true &&
+          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+        )
+          break;
+      }
     }
     if (direction === constants.DOWN) {
-      for (n = 1; n <= speed; n++)
-        if (!markMovableCell(state, row, col, row + n, col, mark)) break;
+      for (n = 1; n <= speed; n++) {
+        rst = markMovableCell(state, row, col, row + n, col, mark);
+        if (!rst.marked) break;
+        cellPlayer = rst.markedCell.unit.player;
+        if (
+          mark === true &&
+          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+        )
+          break;
+      }
     }
     if (direction === constants.DOWNRIGHT) {
       for (n = 1; n <= speed; n++) {
-        if (!markMovableCell(state, row, col, row + n, col + n, mark)) break;
+        rst = markMovableCell(state, row, col, row + n, col + n, mark);
+        if (!rst.marked) break;
+        cellPlayer = rst.markedCell.unit.player;
+        if (
+          mark === true &&
+          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+        )
+          break;
       }
     }
   }
 };
 
 const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
-  if (toRow < 0 || toCol < 0) return false;
+  if (toRow < 0 || toCol < 0) return { markedCell: {}, marked: false };
 
   const scale = state.game.scale;
-  if (toRow >= scale || toCol >= scale) return false;
+  if (toRow >= scale || toCol >= scale)
+    return { markedCell: {}, marked: false };
 
   const fromCell = state.game.cells[fromRow][fromCol];
   const toCell = state.game.cells[toRow][toCol];
@@ -410,12 +486,12 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
     state.game.status !== constants.GAME_STATUS_INIT &&
     toCell.unit.player === fromCell.unit.player
   )
-    return false;
+    return { markedCell: toCell, marked: false };
 
   var tmp = state.game.cells[toRow].slice(0);
   tmp[toCol].movable = mark;
   Vue.set(state.game.cells, toRow, tmp);
-  return true;
+  return { markedCell: toCell, marked: true };
 };
 
 const rotateCells = originalCells => {
@@ -481,11 +557,20 @@ const receiveOpponentDeployment = state => {
   if (state.player.action.turn === constants.GAME_TURN_WHITE) {
     opponentTurn = constants.GAME_TURN_BLACK;
   }
-  const tmpCells = generateGameMap(state.game.scale, "Player B", opponentTurn);
+  const tmpCells = generateGameMap(
+    state.game.scale,
+    state.player.opponent.profile.name,
+    opponentTurn
+  );
   const opponentDeployment = extractDeploymentFromMap(
     tmpCells,
     state.game.scale
   );
 
   return opponentDeployment;
+};
+
+const markedOpponentUnit = (cellPlayer, opponentPlayerName) => {
+  if (cellPlayer === opponentPlayerName) return true;
+  else return false;
 };
