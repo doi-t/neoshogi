@@ -319,6 +319,9 @@ const canDeployUnit = (state, row) => {
 };
 
 const isMovable = (state, row, col) => {
+  // Trust movable flag on a cell
+  if (!state.game.cells[row][col].movable) return false;
+
   if (state.game.status === constants.GAME_STATUS_INIT) {
     if (canDeployUnit(state, row)) return true;
     else return false;
