@@ -75,7 +75,8 @@ export const actions = {
     const mergedCells = mergeDeployments(
       myDeployment,
       opponentDeployment,
-      state.game.scale
+      state.game.scale,
+      state.player.action.turn
     );
 
     commit("startGame", mergedCells);
@@ -408,7 +409,7 @@ const rotateCells = originalCells => {
   return rotatedCells;
 };
 
-const mergeDeployments = (myDeployment, opponentDeployment, scale) => {
+const mergeDeployments = (myDeployment, opponentDeployment, scale, turn) => {
   var cells = [];
   const area = constants.gamePresets[scale].deploymentArea;
   for (var row = 0; row < scale; row++) {
@@ -419,7 +420,7 @@ const mergeDeployments = (myDeployment, opponentDeployment, scale) => {
     } else {
       cells[row] = [];
       for (var col = 0; col < scale; col++) {
-        cells[row][col] = getEmptyCell(row, col);
+        cells[row][col] = getEmptyCell(row, col, scale, turn);
       }
     }
   }
@@ -435,9 +436,15 @@ const extractDeploymentFromMap = (cells, scale) => {
   return deployment;
 };
 
-const getEmptyCell = (row, col) => {
+const getEmptyCell = (row, col, scale, turn) => {
+  // Rotate a cell by 180 degree for "White" at data level
+  if (turn === constants.GAME_TURN_BLACK) {
+    var position = { row: row, col: col };
+  } else if (turn === constants.GAME_TURN_WHITE) {
+    var position = { row: scale - 1 - row, col: scale - 1 - col };
+  }
   return {
-    position: { row: row, col: col },
+    position: position,
     unit: {
       player: "",
       role: "",
