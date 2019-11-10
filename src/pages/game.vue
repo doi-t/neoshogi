@@ -5,10 +5,10 @@
         <PlayerStatus />
       </v-col>
       <v-col cols="4">
-        <Storage />
-      </v-col>
-      <v-col cols="4">
         <PhaseDisplay />
+      </v-col>
+      <v-col cols="12">
+        <Storage />
       </v-col>
       <v-col cols="12">
         <GameBoard />

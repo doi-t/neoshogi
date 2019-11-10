@@ -18,10 +18,12 @@ export const state = () => ({
       selectedCell: { row: null, col: null },
       marked: false,
       markedCell: { row: null, col: null },
-      unitConfigDialog: false
+      unitConfigDialog: false,
+      deploy: false
     },
     storage: {
-      units: 0,
+      units: [],
+      selectedUnitIndex: -1,
       speeds: 0
     }
   },
@@ -41,6 +43,10 @@ export const getters = {
     if (state.game.cells[row][col].marked) return "green";
     if (state.game.cells[row][col].movable) return "yellow";
     return "blue";
+  },
+  getUnitInStorageColor: state => index => {
+    if (state.player.storage.selectedUnitIndex === index) return "red";
+    return "";
   }
 };
 
@@ -88,14 +94,36 @@ export const actions = {
 
     commit("startGame", mergedCells);
   },
-  deployUnit: async ({ commit }) => {
-    commit("deployUnit");
+  selectUnitInStorage: async ({ commit }, index) => {
+    commit("unselectUnitInStorage");
+    commit("resetSelectAction");
+    commit("resetMarkAction");
+    commit("selectUnitInStorage", index);
   },
   resetAction: async ({ commit }) => {
     commit("resetSelectAction");
     commit("resetMarkAction");
   },
   updateCell: async ({ commit, state, dispatch }, { row, col }) => {
+    if (state.player.action.deploy) {
+      const numOfUnitsInStorage = state.player.storage.units.length;
+      if (
+        0 <
+          state.player.storage.selectedUnitIndex <
+          state.player.storage.units.length &&
+        state.game.cells[row][col].movable
+      ) {
+        commit("dropUnit", { row, col });
+      }
+      commit("resetSelectAction");
+      commit("resetMarkAction");
+      commit("unmarkDeployCells");
+      commit("unselectUnitInStorage");
+      if (state.player.storage.units.length !== numOfUnitsInStorage) {
+        return;
+      }
+    }
+
     if (state.game.cells[row][col].selected) {
       commit("resetSelectAction");
       commit("resetMarkAction");
@@ -124,7 +152,7 @@ export const actions = {
             commit("endGame");
             console.log("You win!");
           }
-          commit("takeUnit", { row, col });
+          if (isOpponentUnit(state, row, col)) commit("takeUnit", { row, col });
           commit("markNextMove", { row, col });
           dispatch("moveUnit");
         }
@@ -176,7 +204,8 @@ export const mutations = {
       unitConfigDialog: false
     };
     state.player.storage = {
-      units: 0,
+      units: [],
+      selectedUnitIndex: -1,
       speeds: 10
     };
   },
@@ -184,7 +213,34 @@ export const mutations = {
     state.game.cells = JSON.parse(JSON.stringify(mergedCells));
     state.game.status = constants.GAME_STATUS_PLAYING;
   },
-  deployUnit: state => {},
+  selectUnitInStorage: (state, index) => {
+    state.player.action.deploy = true;
+    state.player.storage.selectedUnitIndex = index;
+    markDeployCells(state);
+  },
+  unselectUnitInStorage: state => {
+    state.player.action.deploy = false;
+    state.player.storage.selectedUnitIndex = -1;
+  },
+  unmarkDeployCells: state => {
+    unmarkDeployCells(state);
+    state.player.action.deploy = false;
+  },
+  dropUnit: (state, { row, col }) => {
+    // Drop a unit in the storage to a selected cell
+    // The validation should be done in advance
+    const selectedUnit =
+      state.player.storage.units[state.player.storage.selectedUnitIndex];
+    state.game.cells[row][col].unit = selectedUnit;
+    removeUnitInStorage(state.player.storage.units, selectedUnit);
+    state.game.cells[row][col].selected = false;
+    state.game.cells[row][col].marked = false;
+    state.game.cells[row][col].movable = false;
+
+    // reset deploy action status
+    unmarkDeployCells(state);
+    state.player.storage.selectedUnitIndex = -1;
+  },
   endGame: state => {
     state.game.status = constants.GAME_STATUS_END;
   },
@@ -228,13 +284,14 @@ export const mutations = {
   },
   takeUnit: (state, { row, col }) => {
     var cell = state.game.cells[row].slice(0);
+    cell[col].unit.player = state.player.profile.name;
+    state.player.storage.units.push(cell[col].unit);
     cell[col].unit = {
       player: "",
       role: "",
       moves: []
     };
     Vue.set(state.game.cells, row, cell);
-    state.player.storage.units++;
   },
   moveUnit: state => {
     const selectedRow = state.player.action.selectedCell.row;
@@ -310,6 +367,15 @@ const isUnitOwner = (state, row, col) => {
   }
 };
 
+const isOpponentUnit = (state, row, col) => {
+  const unitOwner = state.game.cells[row][col].unit.player;
+  if (unitOwner != state.player.opponent.profile.name) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
 const canDeployUnit = (state, row) => {
   if (state.game.status !== constants.GAME_STATUS_PLAYING) {
     if (row < constants.gamePresets[state.game.scale].deploymentArea)
@@ -358,6 +424,29 @@ const isMovable = (state, row, col) => {
     if (distance > moves[constants.DOWNRIGHT]) return false;
   }
   return true;
+};
+
+const markDeployCells = state => {
+  for (var areaRow = 0; areaRow < state.game.scale; areaRow++) {
+    for (var areaCol = 0; areaCol <= state.game.scale; areaCol++) {
+      markMovableCell(state, 0, 0, areaRow, areaCol, true);
+    }
+  }
+};
+
+const unmarkDeployCells = state => {
+  for (var areaRow = 0; areaRow < state.game.scale; areaRow++) {
+    for (var areaCol = 0; areaCol <= state.game.scale; areaCol++) {
+      markMovableCell(state, 0, 0, areaRow, areaCol, false);
+    }
+  }
+};
+
+const removeUnitInStorage = (array, element) => {
+  var index = array.indexOf(element);
+  if (index > -1) {
+    array.splice(index, 1);
+  }
 };
 
 const markMovableCells = (state, row, col, mark) => {
@@ -487,10 +576,20 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
   const fromCell = state.game.cells[fromRow][fromCol];
   const toCell = state.game.cells[toRow][toCol];
   if (
+    !state.player.action.deploy &&
     state.game.status !== constants.GAME_STATUS_INIT &&
     toCell.unit.player === fromCell.unit.player
-  )
-    return { markedCell: toCell, marked: false };
+  ) {
+    return { markedCell: {}, marked: false };
+  }
+
+  if (
+    state.player.action.deploy &&
+    (toCell.unit.player === state.player.profile.name ||
+      toCell.unit.player === state.player.opponent.profile.name)
+  ) {
+    return { markedCell: {}, marked: false };
+  }
 
   var tmp = state.game.cells[toRow].slice(0);
   tmp[toCol].movable = mark;
