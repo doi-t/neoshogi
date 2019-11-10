@@ -106,6 +106,7 @@ export const actions = {
   },
   updateCell: async ({ commit, state, dispatch }, { row, col }) => {
     if (state.player.action.deploy) {
+      const numOfUnitsInStorage = state.player.storage.units.length;
       if (
         0 <
           state.player.storage.selectedUnitIndex <
@@ -118,6 +119,9 @@ export const actions = {
       commit("resetMarkAction");
       commit("unmarkDeployCells");
       commit("unselectUnitInStorage");
+      if (state.player.storage.units.length !== numOfUnitsInStorage) {
+        return;
+      }
     }
 
     if (state.game.cells[row][col].selected) {
