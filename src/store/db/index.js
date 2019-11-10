@@ -101,14 +101,12 @@ export const actions = {
   },
   updateCell: async ({ commit, state, dispatch }, { row, col }) => {
     if (state.player.action.deploy) {
-      console.log(state.player.storage.selectedUnitIndex);
       if (
         0 <
           state.player.storage.selectedUnitIndex <
           state.player.storage.units.length &&
         state.game.cells[row][col].movable
       ) {
-        console.log("dropping a unit...");
         commit("dropUnit", { row, col });
       }
       commit("resetSelectAction");
