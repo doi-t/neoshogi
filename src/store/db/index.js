@@ -577,6 +577,7 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
   const fromCell = state.game.cells[fromRow][fromCol];
   const toCell = state.game.cells[toRow][toCol];
   if (
+    !state.player.action.deploy &&
     state.game.status !== constants.GAME_STATUS_INIT &&
     toCell.unit.player === fromCell.unit.player
   )
