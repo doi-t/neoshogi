@@ -54,13 +54,8 @@ export default {
       this.$store.dispatch("db/updateCell", { row: this.row, col: this.col });
     },
     openDialog() {
-      if (
-        this.gamePhase === constants.GAME_STATUS_INIT ||
-        this.gamePhase === constants.GAME_STATUS_DEPLOYING
-      ) {
-        if (this.$store.state.db.player.action.unitConfigDialog)
-          this.dialog = true;
-      }
+      if (this.$store.state.db.player.action.unitConfigDialog)
+        this.dialog = true;
     },
     closeDialog() {
       this.$store.dispatch("db/setUnitConfigDialog", { toggle: false });
