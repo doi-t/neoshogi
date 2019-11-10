@@ -43,6 +43,10 @@ export const getters = {
     if (state.game.cells[row][col].marked) return "green";
     if (state.game.cells[row][col].movable) return "yellow";
     return "blue";
+  },
+  getUnitInStorageColor: state => index => {
+    if (state.player.storage.selectedUnitIndex === index) return "red";
+    return "";
   }
 };
 
@@ -90,10 +94,11 @@ export const actions = {
 
     commit("startGame", mergedCells);
   },
-  deployUnit: async ({ commit }, index) => {
+  selectUnitInStorage: async ({ commit }, index) => {
+    commit("unselectUnitInStorage");
     commit("resetSelectAction");
     commit("resetMarkAction");
-    commit("deployUnit", index);
+    commit("selectUnitInStorage", index);
   },
   resetAction: async ({ commit }) => {
     commit("resetSelectAction");
@@ -108,11 +113,15 @@ export const actions = {
         state.game.cells[row][col].movable
       ) {
         commit("dropUnit", { row, col });
+      } else {
+        commit("unselectUnitInStorage");
       }
       commit("resetSelectAction");
       commit("resetMarkAction");
       commit("unmarkDeployCells");
-    } else if (state.game.cells[row][col].selected) {
+    }
+
+    if (state.game.cells[row][col].selected) {
       commit("resetSelectAction");
       commit("resetMarkAction");
       commit("setUnitConfigDialog", { toggle: true });
@@ -200,10 +209,14 @@ export const mutations = {
     state.game.cells = JSON.parse(JSON.stringify(mergedCells));
     state.game.status = constants.GAME_STATUS_PLAYING;
   },
-  deployUnit: (state, index) => {
+  selectUnitInStorage: (state, index) => {
     state.player.action.deploy = true;
     state.player.storage.selectedUnitIndex = index;
     markDeployCells(state);
+  },
+  unselectUnitInStorage: state => {
+    state.player.action.deploy = false;
+    state.player.storage.selectedUnitIndex = -1;
   },
   unmarkDeployCells: state => {
     unmarkDeployCells(state);

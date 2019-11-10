@@ -10,9 +10,11 @@
           v-for="(unit, unitIndex) in units"
           :key="unitIndex"
         >
-          <v-container @click.stop="deployUnit(unit, unitIndex)">
+          <v-container
+            :class="getUnitInStorageColor(unitIndex)"
+            @click.stop="selectUnitInStorage(unit, unitIndex)"
+          >
             <Unit :unit="unit" />
-            {{ unit }}
           </v-container>
         </v-col>
       </v-row>
@@ -22,18 +24,21 @@
 
 <script>
 import Unit from "~/components/Unit.vue";
-import { mapState } from "vuex";
+import { mapState, mapGetters } from "vuex";
 export default {
   components: { Unit },
   computed: {
     ...mapState({
       units: state => state.db.player.storage.units,
       speeds: state => state.db.player.storage.speeds
+    }),
+    ...mapGetters({
+      getUnitInStorageColor: "db/getUnitInStorageColor"
     })
   },
   methods: {
-    deployUnit(unit, unitIndex) {
-      this.$store.dispatch("db/deployUnit", unitIndex);
+    selectUnitInStorage(unit, unitIndex) {
+      this.$store.dispatch("db/selectUnitInStorage", unitIndex);
     }
   }
 };
