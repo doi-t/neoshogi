@@ -23,7 +23,7 @@ export const state = () => ({
     },
     storage: {
       units: [],
-      selectedUnitIndex: null,
+      selectedUnitIndex: -1,
       speeds: 0
     }
   },
@@ -202,6 +202,7 @@ export const mutations = {
     };
     state.player.storage = {
       units: [],
+      selectedUnitIndex: -1,
       speeds: 10
     };
   },
@@ -424,20 +425,16 @@ const isMovable = (state, row, col) => {
 };
 
 const markDeployCells = state => {
-  var area = constants.gamePresets[state.game.scale].deploymentArea;
-  var areaRow, areaCol;
-  for (areaRow = 0; areaRow < state.game.scale; areaRow++) {
-    for (areaCol = 0; areaCol <= state.game.scale; areaCol++) {
+  for (var areaRow = 0; areaRow < state.game.scale; areaRow++) {
+    for (var areaCol = 0; areaCol <= state.game.scale; areaCol++) {
       markMovableCell(state, 0, 0, areaRow, areaCol, true);
     }
   }
 };
 
 const unmarkDeployCells = state => {
-  var area = constants.gamePresets[state.game.scale].deploymentArea;
-  var areaRow, areaCol;
-  for (areaRow = 0; areaRow < state.game.scale; areaRow++) {
-    for (areaCol = 0; areaCol <= state.game.scale; areaCol++) {
+  for (var areaRow = 0; areaRow < state.game.scale; areaRow++) {
+    for (var areaCol = 0; areaCol <= state.game.scale; areaCol++) {
       markMovableCell(state, 0, 0, areaRow, areaCol, false);
     }
   }
@@ -580,15 +577,17 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
     !state.player.action.deploy &&
     state.game.status !== constants.GAME_STATUS_INIT &&
     toCell.unit.player === fromCell.unit.player
-  )
-    return { markedCell: toCell, marked: false };
+  ) {
+    return { markedCell: {}, marked: false };
+  }
 
   if (
     state.player.action.deploy &&
     (toCell.unit.player === state.player.profile.name ||
       toCell.unit.player === state.player.opponent.profile.name)
-  )
-    return { markedCell: toCell, marked: false };
+  ) {
+    return { markedCell: {}, marked: false };
+  }
 
   var tmp = state.game.cells[toRow].slice(0);
   tmp[toCol].movable = mark;

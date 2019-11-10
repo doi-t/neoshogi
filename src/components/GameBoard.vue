@@ -17,7 +17,6 @@
             <v-card-actions>
               <v-btn @click="initiateGame()">initiate</v-btn>
               <v-btn @click="startGame()">startGame</v-btn>
-              <v-btn @click="deployUnit()">deploy</v-btn>
               <v-btn @click="resetAction()">reset</v-btn>
               <v-btn @click="moveUnit()">move a unit</v-btn>
               <v-btn color="#E53935">Give Up</v-btn>
@@ -88,9 +87,6 @@ export default {
     },
     startGame() {
       this.$store.dispatch("db/startGame", this.selectedScale);
-    },
-    deployUnit() {
-      this.$store.dispatch("db/deployUnit", this.selectedScale);
     },
     resetAction() {
       this.$store.dispatch("db/resetAction");
