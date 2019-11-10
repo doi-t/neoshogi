@@ -113,12 +113,11 @@ export const actions = {
         state.game.cells[row][col].movable
       ) {
         commit("dropUnit", { row, col });
-      } else {
-        commit("unselectUnitInStorage");
       }
       commit("resetSelectAction");
       commit("resetMarkAction");
       commit("unmarkDeployCells");
+      commit("unselectUnitInStorage");
     }
 
     if (state.game.cells[row][col].selected) {
@@ -236,8 +235,7 @@ export const mutations = {
 
     // reset deploy action status
     unmarkDeployCells(state);
-    state.player.storage.selectedUnitIndex = null;
-    state.player.action.deploy = false;
+    state.player.storage.selectedUnitIndex = -1;
   },
   endGame: state => {
     state.game.status = constants.GAME_STATUS_END;
