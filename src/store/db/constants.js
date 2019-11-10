@@ -2,7 +2,6 @@ export default Object.freeze({
   GAME_TURN_BLACK: "black",
   GAME_TURN_WHITE: "white",
   GAME_STATUS_INIT: "initGame",
-  GAME_STATUS_DEPLOYING: "deploying",
   GAME_STATUS_PLAYING: "playing",
   GAME_STATUS_END: "endGame",
   PIECE_PAWN: "Pawn", // 歩

@@ -10,9 +10,10 @@
           v-for="(unit, unitIndex) in units"
           :key="unitIndex"
         >
-          <v-card tile class="ma-0 pa-0">
+          <v-container @click.stop="deployUnit(unit, unitIndex)">
             <Unit :unit="unit" />
-          </v-card>
+            {{ unit }}
+          </v-container>
         </v-col>
       </v-row>
     </v-card>
@@ -29,6 +30,11 @@ export default {
       units: state => state.db.player.storage.units,
       speeds: state => state.db.player.storage.speeds
     })
+  },
+  methods: {
+    deployUnit(unit, unitIndex) {
+      this.$store.dispatch("db/deployUnit", unitIndex);
+    }
   }
 };
 </script>
