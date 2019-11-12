@@ -232,31 +232,13 @@ export const mutations = {
     state.game.status = constants.GAME_STATUS_INIT;
     const cells = generateGameMap(scale, state.player.profile.name, turn);
     Vue.set(state.game, "cells", cells);
-    // Initialize player.action
-    state.player.action = {
-      turn: turn,
-      selected: false,
-      selectedCell: { row: null, col: null },
-      marked: false,
-      markedCell: { row: null, col: null },
-      unitConfigDialog: false,
-      deploy: false,
-      speedUp: { row: null, col: null, direction: null }
+    initializePlayerAndOpponentAction(state, turn);
+    state.player.storage.selectedUnit = {
+      units: [],
+      selectedUnitIndex: -1,
+      speeds: 10
     };
-    state.opponent.action = {
-      turn:
-        turn === constants.GAME_TURN_BLACK
-          ? constants.GAME_TURN_WHITE
-          : constants.GAME_TURN_BLACK,
-      selected: false,
-      selectedCell: { row: null, col: null },
-      marked: false,
-      markedCell: { row: null, col: null },
-      unitConfigDialog: false,
-      deploy: false,
-      speedUp: { row: null, col: null, direction: null }
-    };
-    state.player.storage = {
+    state.opponent.storage.selectedUnit = {
       units: [],
       selectedUnitIndex: -1,
       speeds: 10
@@ -271,6 +253,7 @@ export const mutations = {
       state.game.turn === constants.GAME_TURN_BLACK
         ? constants.GAME_TURN_WHITE
         : constants.GAME_TURN_BLACK;
+    initializePlayerAndOpponentAction(state, state.player.action.turn);
   },
   selectUnitInStorage: (state, index) => {
     state.player.action.deploy = true;
@@ -437,6 +420,32 @@ const generateGameMap = (scale, playerName, turn) => {
     }
   }
   return cells;
+};
+
+const initializePlayerAndOpponentAction = (state, turn) => {
+  state.player.action = {
+    turn: turn,
+    selected: false,
+    selectedCell: { row: null, col: null },
+    marked: false,
+    markedCell: { row: null, col: null },
+    unitConfigDialog: false,
+    deploy: false,
+    speedUp: { row: null, col: null, direction: null }
+  };
+  state.opponent.action = {
+    turn:
+      turn === constants.GAME_TURN_BLACK
+        ? constants.GAME_TURN_WHITE
+        : constants.GAME_TURN_BLACK,
+    selected: false,
+    selectedCell: { row: null, col: null },
+    marked: false,
+    markedCell: { row: null, col: null },
+    unitConfigDialog: false,
+    deploy: false,
+    speedUp: { row: null, col: null, direction: null }
+  };
 };
 
 const isUnitOwner = (state, row, col) => {
