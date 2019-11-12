@@ -111,6 +111,9 @@ export const actions = {
 
     commit("startGame", mergedCells);
   },
+  takeTurn: async ({ commit }) => {
+    commit("takeTurn");
+  },
   selectUnitInStorage: async ({ commit }, index) => {
     commit("unselectUnitInStorage");
     commit("resetSelectAction");
@@ -191,14 +194,24 @@ export const actions = {
     if (state.player.storage.speeds > 0) {
       commit("increaseSpeed", { row, col, direction });
     }
-    if (state.game.status === constants.GAME_STATUS_PLAYING) {
-      commit("takeTurn");
-    }
   },
   decreaseSpeed: async ({ commit, state }, { row, col, direction }) => {
     if (state.game.cells[row][col].unit.role === constants.PIECE_KING) return;
     if (state.game.cells[row][col].unit.moves[direction] > 0) {
       commit("decreaseSpeed", { row, col, direction });
+    }
+  },
+  cancelSpeedUp: async ({ state, dispatch }, { row, col }) => {
+    if (
+      state.player.action.speedUp.row === row &&
+      state.player.action.speedUp.col === col
+    ) {
+      console.log("canceling...");
+      dispatch("decreaseSpeed", {
+        row: row,
+        col: col,
+        direction: state.player.action.speedUp.direction
+      });
     }
   }
 };
@@ -214,6 +227,7 @@ export const mutations = {
     state.player.action.unitConfigDialog = toggle;
   },
   initGame: (state, { scale, turn }) => {
+    state.game.turn = constants.GAME_TURN_BLACK;
     state.game.scale = scale;
     state.game.status = constants.GAME_STATUS_INIT;
     const cells = generateGameMap(scale, state.player.profile.name, turn);

@@ -19,8 +19,9 @@
         <v-divider></v-divider>
 
         <v-card-actions>
+          <v-btn color="secondary" text @click="cancelSpeedUp()">Cancel</v-btn>
           <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="closeDialog()">Done</v-btn>
+          <v-btn color="primary" text @click="closeDialog()">Speed Up</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -62,6 +63,15 @@ export default {
         this.dialog = true;
     },
     closeDialog() {
+      this.$store.dispatch("db/setUnitConfigDialog", { toggle: false });
+      this.dialog = false;
+      this.$store.dispatch("db/takeTurn");
+    },
+    cancelSpeedUp() {
+      this.$store.dispatch("db/cancelSpeedUp", {
+        row: this.row,
+        col: this.col
+      });
       this.$store.dispatch("db/setUnitConfigDialog", { toggle: false });
       this.dialog = false;
     }
