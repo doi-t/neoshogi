@@ -44,7 +44,8 @@ export const state = () => ({
   game: {
     status: constants.GAME_STATUS_INIT,
     scale: 0,
-    cells: []
+    cells: [],
+    turn: constants.GAME_TURN_BLACK
   }
 });
 
@@ -128,6 +129,7 @@ export const actions = {
         state.game.cells[row][col].movable
       ) {
         commit("dropUnit", { row, col });
+        commit("takeTurn");
       }
       commit("resetSelectAction");
       commit("resetMarkAction");
@@ -169,6 +171,7 @@ export const actions = {
           if (isOpponentUnit(state, row, col)) commit("takeUnit", { row, col });
           commit("markNextMove", { row, col });
           dispatch("moveUnit");
+          commit("takeTurn");
         }
       }
     }
@@ -184,6 +187,9 @@ export const actions = {
   increaseSpeed: async ({ commit, state }, { row, col, direction }) => {
     if (state.player.storage.speeds > 0) {
       commit("increaseSpeed", { row, col, direction });
+    }
+    if (state.game.status === constants.GAME_STATUS_PLAYING) {
+      commit("takeTurn");
     }
   },
   decreaseSpeed: async ({ commit, state }, { row, col, direction }) => {
@@ -226,6 +232,12 @@ export const mutations = {
   startGame: (state, mergedCells) => {
     state.game.cells = JSON.parse(JSON.stringify(mergedCells));
     state.game.status = constants.GAME_STATUS_PLAYING;
+  },
+  takeTurn: state => {
+    state.game.turn =
+      state.game.turn === constants.GAME_TURN_BLACK
+        ? constants.GAME_TURN_WHITE
+        : constants.GAME_TURN_BLACK;
   },
   selectUnitInStorage: (state, index) => {
     state.player.action.deploy = true;
