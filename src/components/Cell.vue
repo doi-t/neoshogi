@@ -4,7 +4,7 @@
       :class="getCellColor(row, col)"
       tile
       class="ma-0 pa-0"
-      @click.stop="updateCell(); openDialog()"
+      @click.stop="updateCell(); openDialog(row, col)"
     >
       <div>{{ row }}:{{ col }}({{ getCell(row, col).position.row }}:{{ getCell(row, col).position.col }})</div>
 
@@ -42,7 +42,8 @@ export default {
   computed: {
     ...mapState({
       speeds: state => state.db.player.storage.speeds,
-      gamePhase: state => state.db.game.status
+      gamePhase: state => state.db.game.status,
+      unitConfigDialog: state => state.db.player.action.unitConfigDialog
     }),
     ...mapGetters({
       getCell: "db/getCell",
@@ -53,8 +54,11 @@ export default {
     updateCell() {
       this.$store.dispatch("db/updateCell", { row: this.row, col: this.col });
     },
-    openDialog() {
-      if (this.$store.state.db.player.action.unitConfigDialog)
+    openDialog(row, col) {
+      if (
+        this.getCell(row, col).unit.role !== constants.PIECE_KING &&
+        this.unitConfigDialog
+      )
         this.dialog = true;
     },
     closeDialog() {

@@ -187,6 +187,7 @@ export const actions = {
     commit("resetMarkAction");
   },
   increaseSpeed: async ({ commit, state }, { row, col, direction }) => {
+    if (state.game.cells[row][col].unit.role === constants.PIECE_KING) return;
     if (state.player.storage.speeds > 0) {
       commit("increaseSpeed", { row, col, direction });
     }
@@ -195,6 +196,7 @@ export const actions = {
     }
   },
   decreaseSpeed: async ({ commit, state }, { row, col, direction }) => {
+    if (state.game.cells[row][col].unit.role === constants.PIECE_KING) return;
     if (state.game.cells[row][col].unit.moves[direction] > 0) {
       commit("decreaseSpeed", { row, col, direction });
     }
