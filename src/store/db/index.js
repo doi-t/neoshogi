@@ -14,7 +14,8 @@ export const state = () => ({
       marked: false,
       markedCell: { row: null, col: null },
       unitConfigDialog: false,
-      deploy: false
+      deploy: false,
+      speedUp: { row: null, col: null, direction: null }
     },
     storage: {
       units: [],
@@ -33,7 +34,8 @@ export const state = () => ({
       marked: false,
       markedCell: { row: null, col: null },
       unitConfigDialog: false,
-      deploy: false
+      deploy: false,
+      speedUp: { row: null, col: null, direction: null }
     },
     storage: {
       units: [],
@@ -221,7 +223,22 @@ export const mutations = {
       selectedCell: { row: null, col: null },
       marked: false,
       markedCell: { row: null, col: null },
-      unitConfigDialog: false
+      unitConfigDialog: false,
+      deploy: false,
+      speedUp: { row: null, col: null, direction: null }
+    };
+    state.opponent.action = {
+      turn:
+        turn === constants.GAME_TURN_BLACK
+          ? constants.GAME_TURN_WHITE
+          : constants.GAME_TURN_BLACK,
+      selected: false,
+      selectedCell: { row: null, col: null },
+      marked: false,
+      markedCell: { row: null, col: null },
+      unitConfigDialog: false,
+      deploy: false,
+      speedUp: { row: null, col: null, direction: null }
     };
     state.player.storage = {
       units: [],
@@ -336,6 +353,17 @@ export const mutations = {
     state.game.cells[selectedRow][selectedCol].unit = markedTmp;
   },
   increaseSpeed: (state, { row, col, direction }) => {
+    if (state.game.status === constants.GAME_STATUS_PLAYING) {
+      if (
+        state.player.action.speedUp.row === null ||
+        state.player.action.speedUp.col === null ||
+        state.player.action.speedUp.direction === null
+      ) {
+        state.player.action.speedUp = { row, col, direction };
+      } else {
+        return;
+      }
+    }
     var cell = state.game.cells[row].slice(0);
     const speed = cell[col].unit.moves[direction];
     Vue.set(cell[col].unit.moves, direction, speed + 1);
@@ -343,6 +371,17 @@ export const mutations = {
     state.player.storage.speeds--;
   },
   decreaseSpeed: (state, { row, col, direction }) => {
+    if (state.game.status === constants.GAME_STATUS_PLAYING) {
+      if (
+        state.player.action.speedUp.row === row &&
+        state.player.action.speedUp.col === col &&
+        state.player.action.speedUp.direction === direction
+      ) {
+        state.player.action.speedUp = { row: null, col: null, direction: null };
+      } else {
+        return;
+      }
+    }
     var cell = state.game.cells[row].slice(0);
     const speed = cell[col].unit.moves[direction];
     Vue.set(cell[col].unit.moves, direction, speed - 1);
