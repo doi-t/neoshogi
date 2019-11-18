@@ -4,7 +4,8 @@
       :class="getCellColor(row, col)"
       tile
       class="ma-0 pa-0"
-      @click.stop="updateCell(); openDialog()"
+      @click.stop="updateCell(); openDialog(row, col)"
+      :disabled="checkTurn()"
     >
       <div>{{ row }}:{{ col }}({{ getCell(row, col).position.row }}:{{ getCell(row, col).position.col }})</div>
 
@@ -19,8 +20,9 @@
         <v-divider></v-divider>
 
         <v-card-actions>
+          <v-btn color="secondary" text @click="cancelSpeedUp()">Cancel</v-btn>
           <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="closeDialog()">Done</v-btn>
+          <v-btn color="primary" text @click="closeDialog()">Speed Up</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -42,7 +44,10 @@ export default {
   computed: {
     ...mapState({
       speeds: state => state.db.player.storage.speeds,
-      gamePhase: state => state.db.game.status
+      gamePhase: state => state.db.game.status,
+      unitConfigDialog: state => state.db.player.action.unitConfigDialog,
+      playerTurn: state => state.db.player.action.turn,
+      gameTurn: state => state.db.game.turn
     }),
     ...mapGetters({
       getCell: "db/getCell",
@@ -50,14 +55,29 @@ export default {
     })
   },
   methods: {
+    checkTurn() {
+      return this.playerTurn === this.gameTurn ? false : true;
+    },
     updateCell() {
       this.$store.dispatch("db/updateCell", { row: this.row, col: this.col });
     },
-    openDialog() {
-      if (this.$store.state.db.player.action.unitConfigDialog)
+    openDialog(row, col) {
+      if (
+        this.getCell(row, col).unit.role !== constants.PIECE_KING &&
+        this.unitConfigDialog
+      )
         this.dialog = true;
     },
     closeDialog() {
+      this.$store.dispatch("db/setUnitConfigDialog", { toggle: false });
+      this.dialog = false;
+      this.$store.dispatch("db/takeTurn");
+    },
+    cancelSpeedUp() {
+      this.$store.dispatch("db/cancelSpeedUp", {
+        row: this.row,
+        col: this.col
+      });
       this.$store.dispatch("db/setUnitConfigDialog", { toggle: false });
       this.dialog = false;
     }

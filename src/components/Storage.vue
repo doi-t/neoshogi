@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-card>
+    <v-card :disabled="checkTurn()">
       <v-card-title>Storage</v-card-title>
       <v-card-text>Speed stocks: {{ speeds }}</v-card-text>
       <v-row align="center" justify="center" no-gutters>
@@ -30,13 +30,18 @@ export default {
   computed: {
     ...mapState({
       units: state => state.db.player.storage.units,
-      speeds: state => state.db.player.storage.speeds
+      speeds: state => state.db.player.storage.speeds,
+      playerTurn: state => state.db.player.action.turn,
+      gameTurn: state => state.db.game.turn
     }),
     ...mapGetters({
       getUnitInStorageColor: "db/getUnitInStorageColor"
     })
   },
   methods: {
+    checkTurn() {
+      return this.playerTurn === this.gameTurn ? false : true;
+    },
     selectUnitInStorage(unit, unitIndex) {
       this.$store.dispatch("db/selectUnitInStorage", unitIndex);
     }

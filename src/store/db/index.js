@@ -7,10 +7,25 @@ export const state = () => ({
     profile: {
       name: null
     },
-    opponent: {
-      profile: {
-        name: null
-      }
+    action: {
+      turn: "", // "black" or "white"
+      selected: false,
+      selectedCell: { row: null, col: null },
+      marked: false,
+      markedCell: { row: null, col: null },
+      unitConfigDialog: false,
+      deploy: false,
+      speedUp: { row: null, col: null, direction: null }
+    },
+    storage: {
+      units: [],
+      selectedUnitIndex: -1,
+      speeds: 0
+    }
+  },
+  opponent: {
+    profile: {
+      name: null
     },
     action: {
       turn: "", // "black" or "white"
@@ -19,7 +34,8 @@ export const state = () => ({
       marked: false,
       markedCell: { row: null, col: null },
       unitConfigDialog: false,
-      deploy: false
+      deploy: false,
+      speedUp: { row: null, col: null, direction: null }
     },
     storage: {
       units: [],
@@ -30,7 +46,8 @@ export const state = () => ({
   game: {
     status: constants.GAME_STATUS_INIT,
     scale: 0,
-    cells: []
+    cells: [],
+    turn: constants.GAME_TURN_BLACK
   }
 });
 
@@ -94,6 +111,9 @@ export const actions = {
 
     commit("startGame", mergedCells);
   },
+  takeTurn: async ({ commit }) => {
+    commit("takeTurn");
+  },
   selectUnitInStorage: async ({ commit }, index) => {
     commit("unselectUnitInStorage");
     commit("resetSelectAction");
@@ -114,6 +134,7 @@ export const actions = {
         state.game.cells[row][col].movable
       ) {
         commit("dropUnit", { row, col });
+        commit("takeTurn");
       }
       commit("resetSelectAction");
       commit("resetMarkAction");
@@ -155,6 +176,7 @@ export const actions = {
           if (isOpponentUnit(state, row, col)) commit("takeUnit", { row, col });
           commit("markNextMove", { row, col });
           dispatch("moveUnit");
+          commit("takeTurn");
         }
       }
     }
@@ -168,13 +190,28 @@ export const actions = {
     commit("resetMarkAction");
   },
   increaseSpeed: async ({ commit, state }, { row, col, direction }) => {
+    if (state.game.cells[row][col].unit.role === constants.PIECE_KING) return;
     if (state.player.storage.speeds > 0) {
       commit("increaseSpeed", { row, col, direction });
     }
   },
   decreaseSpeed: async ({ commit, state }, { row, col, direction }) => {
+    if (state.game.cells[row][col].unit.role === constants.PIECE_KING) return;
     if (state.game.cells[row][col].unit.moves[direction] > 0) {
       commit("decreaseSpeed", { row, col, direction });
+    }
+  },
+  cancelSpeedUp: async ({ state, dispatch }, { row, col }) => {
+    if (
+      state.player.action.speedUp.row === row &&
+      state.player.action.speedUp.col === col
+    ) {
+      console.log("canceling...");
+      dispatch("decreaseSpeed", {
+        row: row,
+        col: col,
+        direction: state.player.action.speedUp.direction
+      });
     }
   }
 };
@@ -184,26 +221,24 @@ export const mutations = {
     state.player.profile = playerInfo;
   },
   setOpponentProfile: (state, name) => {
-    state.player.opponent.profile.name = name;
+    state.opponent.profile.name = name;
   },
   setUnitConfigDialog: (state, { toggle }) => {
     state.player.action.unitConfigDialog = toggle;
   },
   initGame: (state, { scale, turn }) => {
+    state.game.turn = constants.GAME_TURN_BLACK;
     state.game.scale = scale;
     state.game.status = constants.GAME_STATUS_INIT;
     const cells = generateGameMap(scale, state.player.profile.name, turn);
     Vue.set(state.game, "cells", cells);
-    // Initialize player.action
-    state.player.action = {
-      turn: turn,
-      selected: false,
-      selectedCell: { row: null, col: null },
-      marked: false,
-      markedCell: { row: null, col: null },
-      unitConfigDialog: false
-    };
+    initializePlayerAndOpponentAction(state, turn);
     state.player.storage = {
+      units: [],
+      selectedUnitIndex: -1,
+      speeds: 10
+    };
+    state.opponent.storage = {
       units: [],
       selectedUnitIndex: -1,
       speeds: 10
@@ -212,6 +247,13 @@ export const mutations = {
   startGame: (state, mergedCells) => {
     state.game.cells = JSON.parse(JSON.stringify(mergedCells));
     state.game.status = constants.GAME_STATUS_PLAYING;
+  },
+  takeTurn: state => {
+    state.game.turn =
+      state.game.turn === constants.GAME_TURN_BLACK
+        ? constants.GAME_TURN_WHITE
+        : constants.GAME_TURN_BLACK;
+    initializePlayerAndOpponentAction(state, state.player.action.turn);
   },
   selectUnitInStorage: (state, index) => {
     state.player.action.deploy = true;
@@ -272,7 +314,7 @@ export const mutations = {
     markMovableCells(state, row, col, false);
     state.game.cells[row][col].selected = false;
     state.player.action.selected = false;
-    state.player.action.selectedcell = { row: null, col: null };
+    state.player.action.selectedCell = { row: null, col: null };
   },
   resetMarkAction: state => {
     if (!state.player.action.marked) return;
@@ -310,6 +352,17 @@ export const mutations = {
     state.game.cells[selectedRow][selectedCol].unit = markedTmp;
   },
   increaseSpeed: (state, { row, col, direction }) => {
+    if (state.game.status === constants.GAME_STATUS_PLAYING) {
+      if (
+        state.player.action.speedUp.row == null &&
+        state.player.action.speedUp.col == null &&
+        state.player.action.speedUp.direction == null
+      ) {
+        state.player.action.speedUp = { row, col, direction };
+      } else {
+        return;
+      }
+    }
     var cell = state.game.cells[row].slice(0);
     const speed = cell[col].unit.moves[direction];
     Vue.set(cell[col].unit.moves, direction, speed + 1);
@@ -317,6 +370,17 @@ export const mutations = {
     state.player.storage.speeds--;
   },
   decreaseSpeed: (state, { row, col, direction }) => {
+    if (state.game.status === constants.GAME_STATUS_PLAYING) {
+      if (
+        state.player.action.speedUp.row === row &&
+        state.player.action.speedUp.col === col &&
+        state.player.action.speedUp.direction === direction
+      ) {
+        state.player.action.speedUp = { row: null, col: null, direction: null };
+      } else {
+        return;
+      }
+    }
     var cell = state.game.cells[row].slice(0);
     const speed = cell[col].unit.moves[direction];
     Vue.set(cell[col].unit.moves, direction, speed - 1);
@@ -358,6 +422,32 @@ const generateGameMap = (scale, playerName, turn) => {
   return cells;
 };
 
+const initializePlayerAndOpponentAction = (state, turn) => {
+  state.player.action = {
+    turn: turn,
+    selected: false,
+    selectedCell: { row: null, col: null },
+    marked: false,
+    markedCell: { row: null, col: null },
+    unitConfigDialog: false,
+    deploy: false,
+    speedUp: { row: null, col: null, direction: null }
+  };
+  state.opponent.action = {
+    turn:
+      turn === constants.GAME_TURN_BLACK
+        ? constants.GAME_TURN_WHITE
+        : constants.GAME_TURN_BLACK,
+    selected: false,
+    selectedCell: { row: null, col: null },
+    marked: false,
+    markedCell: { row: null, col: null },
+    unitConfigDialog: false,
+    deploy: false,
+    speedUp: { row: null, col: null, direction: null }
+  };
+};
+
 const isUnitOwner = (state, row, col) => {
   const unitOwner = state.game.cells[row][col].unit.player;
   if (unitOwner != state.player.profile.name) {
@@ -369,7 +459,7 @@ const isUnitOwner = (state, row, col) => {
 
 const isOpponentUnit = (state, row, col) => {
   const unitOwner = state.game.cells[row][col].unit.player;
-  if (unitOwner != state.player.opponent.profile.name) {
+  if (unitOwner != state.opponent.profile.name) {
     return false;
   } else {
     return true;
@@ -474,7 +564,7 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
         )
           break;
       }
@@ -486,7 +576,7 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
         )
           break;
       }
@@ -498,7 +588,7 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
         )
           break;
       }
@@ -510,7 +600,7 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
         )
           break;
       }
@@ -522,7 +612,7 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
         )
           break;
       }
@@ -534,7 +624,7 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
         )
           break;
       }
@@ -546,7 +636,7 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
         )
           break;
       }
@@ -558,7 +648,7 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.player.opponent.profile.name)
+          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
         )
           break;
       }
@@ -586,7 +676,7 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
   if (
     state.player.action.deploy &&
     (toCell.unit.player === state.player.profile.name ||
-      toCell.unit.player === state.player.opponent.profile.name)
+      toCell.unit.player === state.opponent.profile.name)
   ) {
     return { markedCell: {}, marked: false };
   }
@@ -662,7 +752,7 @@ const receiveOpponentDeployment = state => {
   }
   const tmpCells = generateGameMap(
     state.game.scale,
-    state.player.opponent.profile.name,
+    state.opponent.profile.name,
     opponentTurn
   );
   const opponentDeployment = extractDeploymentFromMap(
