@@ -354,9 +354,9 @@ export const mutations = {
   increaseSpeed: (state, { row, col, direction }) => {
     if (state.game.status === constants.GAME_STATUS_PLAYING) {
       if (
-        state.player.action.speedUp.row === null &&
-        state.player.action.speedUp.col === null &&
-        state.player.action.speedUp.direction === null
+        state.player.action.speedUp.row == null &&
+        state.player.action.speedUp.col == null &&
+        state.player.action.speedUp.direction == null
       ) {
         state.player.action.speedUp = { row, col, direction };
       } else {
