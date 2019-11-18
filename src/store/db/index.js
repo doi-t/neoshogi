@@ -314,7 +314,7 @@ export const mutations = {
     markMovableCells(state, row, col, false);
     state.game.cells[row][col].selected = false;
     state.player.action.selected = false;
-    state.player.action.selectedcell = { row: null, col: null };
+    state.player.action.selectedCell = { row: null, col: null };
   },
   resetMarkAction: state => {
     if (!state.player.action.marked) return;
@@ -354,8 +354,8 @@ export const mutations = {
   increaseSpeed: (state, { row, col, direction }) => {
     if (state.game.status === constants.GAME_STATUS_PLAYING) {
       if (
-        state.player.action.speedUp.row === null ||
-        state.player.action.speedUp.col === null ||
+        state.player.action.speedUp.row === null &&
+        state.player.action.speedUp.col === null &&
         state.player.action.speedUp.direction === null
       ) {
         state.player.action.speedUp = { row, col, direction };
