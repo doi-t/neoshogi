@@ -13,9 +13,9 @@ export default {
   computed: {
     ...mapState({
       playerName: state => state.db.player.profile.name,
-      playerTurn: state => state.db.player.action.turn,
+      playerTurn: state => state.db.player.turn,
       opponentName: state => state.db.opponent.profile.name,
-      opponentTurn: state => state.db.opponent.action.turn
+      opponentTurn: state => state.db.opponent.turn
     })
   }
 };

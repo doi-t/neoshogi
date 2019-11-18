@@ -43,10 +43,11 @@ export default {
   }),
   computed: {
     ...mapState({
-      speeds: state => state.db.player.storage.speeds,
+      speeds: state => state.db.game.playerInAction.storage.speeds,
       gamePhase: state => state.db.game.status,
-      unitConfigDialog: state => state.db.player.action.unitConfigDialog,
-      playerTurn: state => state.db.player.action.turn,
+      unitConfigDialog: state =>
+        state.db.game.playerInAction.action.unitConfigDialog,
+      playerTurn: state => state.db.game.playerInAction.action.turn,
       gameTurn: state => state.db.game.turn
     }),
     ...mapGetters({

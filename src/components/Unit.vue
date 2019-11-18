@@ -26,12 +26,12 @@ export default {
   props: ["unit"],
   computed: {
     ...mapState({
-      playerName: state => state.db.player.profile.name
+      opponentName: state => state.db.opponent.profile.name
     })
   },
   methods: {
     getMoves(row, col) {
-      if (this.playerName !== this.unit.player) {
+      if (this.opponentName === this.unit.player) {
         return this.unit.moves[8 - (row * 3 + col)];
       } else {
         return this.unit.moves[row * 3 + col];
