@@ -233,12 +233,12 @@ export const mutations = {
     const cells = generateGameMap(scale, state.player.profile.name, turn);
     Vue.set(state.game, "cells", cells);
     initializePlayerAndOpponentAction(state, turn);
-    state.player.storage.selectedUnit = {
+    state.player.storage = {
       units: [],
       selectedUnitIndex: -1,
       speeds: 10
     };
-    state.opponent.storage.selectedUnit = {
+    state.opponent.storage = {
       units: [],
       selectedUnitIndex: -1,
       speeds: 10
