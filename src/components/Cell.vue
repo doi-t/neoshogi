@@ -5,6 +5,7 @@
       tile
       class="ma-0 pa-0"
       @click.stop="updateCell(); openDialog(row, col)"
+      :disabled="checkTurn()"
     >
       <div>{{ row }}:{{ col }}({{ getCell(row, col).position.row }}:{{ getCell(row, col).position.col }})</div>
 
@@ -44,7 +45,9 @@ export default {
     ...mapState({
       speeds: state => state.db.player.storage.speeds,
       gamePhase: state => state.db.game.status,
-      unitConfigDialog: state => state.db.player.action.unitConfigDialog
+      unitConfigDialog: state => state.db.player.action.unitConfigDialog,
+      playerTurn: state => state.db.player.action.turn,
+      gameTurn: state => state.db.game.turn
     }),
     ...mapGetters({
       getCell: "db/getCell",
@@ -52,6 +55,9 @@ export default {
     })
   },
   methods: {
+    checkTurn() {
+      return this.playerTurn === this.gameTurn ? false : true;
+    },
     updateCell() {
       this.$store.dispatch("db/updateCell", { row: this.row, col: this.col });
     },
