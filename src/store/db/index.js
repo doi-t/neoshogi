@@ -524,6 +524,15 @@ const isOpponentUnit = (state, row, col) => {
   return unitOwner === state.game.playerNotInAction.profile.name ? true : false;
 };
 
+const isOpponentTurn = state => {
+  return state.opponent.turn === state.game.turn ? true : false;
+};
+
+const getOpponentMoves = moves => {
+  const tmpMoves = JSON.parse(JSON.stringify(moves));
+  return tmpMoves.reverse();
+};
+
 const canDeployUnit = (state, row) => {
   if (state.game.status !== constants.GAME_STATUS_PLAYING) {
     if (row < constants.gamePresets[state.game.scale].deploymentArea)
@@ -551,7 +560,11 @@ const isMovable = (state, row, col) => {
   if (Math.abs(x) === Math.abs(y)) distance = Math.abs(x);
   const sRow = state.game.playerInAction.action.selectedCell.row;
   const sCol = state.game.playerInAction.action.selectedCell.col;
-  const moves = state.game.cells[sRow][sCol].unit.moves;
+
+  const moves = isOpponentTurn(state)
+    ? getOpponentMoves(state.game.cells[sRow][sCol].unit.moves)
+    : state.game.cells[sRow][sCol].unit.moves;
+
   if (x < 0 && y < 0) {
     if (distance > moves[constants.UPLEFT]) return false;
   } else if (x < 0 && y === 0) {
@@ -609,7 +622,10 @@ const markMovableCells = (state, row, col, mark) => {
     return;
   }
 
-  const moves = state.game.cells[row][col].unit.moves;
+  const moves = isOpponentTurn(state)
+    ? getOpponentMoves(state.game.cells[row][col].unit.moves)
+    : state.game.cells[row][col].unit.moves;
+
   var direction, n;
   for (direction = 0; direction < moves.length; direction++) {
     var speed = moves[direction];
