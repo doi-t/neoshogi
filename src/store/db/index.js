@@ -681,7 +681,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.game.playerNotInAction)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -693,7 +696,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.game.playerNotInAction)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -705,7 +711,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.game.playerNotInAction)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -717,7 +726,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.game.playerNotInAction)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -729,7 +741,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.game.playerNotInAction)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -741,7 +756,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.game.playerNotInAction)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -753,7 +771,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.game.playerNotInAction)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -765,7 +786,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.game.playerNotInAction)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -782,6 +806,7 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
 
   const fromCell = state.game.cells[fromRow][fromCol];
   const toCell = state.game.cells[toRow][toCol];
+
   if (
     !state.game.playerInAction.action.deploy &&
     state.game.status !== constants.GAME_STATUS_INIT &&
@@ -881,6 +906,7 @@ const receiveOpponentDeployment = state => {
 };
 
 const markedOpponentUnit = (cellPlayer, opponentPlayerName) => {
+  console.log(cellPlayer, opponentPlayerName);
   if (cellPlayer === opponentPlayerName) return true;
   else return false;
 };
