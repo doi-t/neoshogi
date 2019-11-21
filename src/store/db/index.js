@@ -227,7 +227,6 @@ export const actions = {
       if (isUnitOwner(state, row, col)) {
         if (state.game.status === constants.GAME_STATUS_INIT) {
           if (isMovable(state, row, col) === true) {
-            console.log("yest it is");
             commit("markNextMove", { row, col });
             dispatch("moveUnit");
           }
@@ -664,11 +663,6 @@ const isMovable = (state, row, col) => {
   if (!state.game.cells[row][col].movable) return false;
 
   if (state.game.status === constants.GAME_STATUS_INIT) {
-    console.log(
-      row,
-      state.game.scale,
-      constants.gamePresets[state.game.scale].deploymentArea
-    );
     if (canDeployUnit(state, row)) return true;
     else return false;
   }
