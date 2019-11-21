@@ -17,8 +17,7 @@
             <v-card-actions>
               <v-btn @click="initiateGame()">initiate</v-btn>
               <v-btn @click="startGame()">startGame</v-btn>
-              <v-btn @click="resetAction()">reset</v-btn>
-              <v-btn @click="moveUnit()">move a unit</v-btn>
+              <v-btn @click="startOfflineGame()">start Offline Game</v-btn>
               <v-btn color="#E53935">Give Up</v-btn>
             </v-card-actions>
           </div>
@@ -94,11 +93,8 @@ export default {
     startGame() {
       this.$store.dispatch("db/startGame", this.selectedScale);
     },
-    resetAction() {
-      this.$store.dispatch("db/resetAction");
-    },
-    moveUnit() {
-      this.$store.dispatch("db/moveUnit");
+    startOfflineGame() {
+      this.$store.dispatch("db/startOfflineGame", this.selectedScale);
     }
   }
 };

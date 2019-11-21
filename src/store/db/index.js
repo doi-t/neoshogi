@@ -26,6 +26,11 @@ export const state = () => ({
     }
   },
   game: {
+    offlineMode: {
+      playing: false,
+      blackDeployment: null,
+      whiteDeployment: null
+    },
     status: constants.GAME_STATUS_INIT,
     scale: 0,
     cells: [],
@@ -134,6 +139,43 @@ export const actions = {
 
     commit("startGame", mergedCells);
   },
+  startOfflineGame: async ({ commit, state, dispatch }) => {
+    dispatch("resetAction");
+    commit("playOfflineMode");
+
+    if (!state.game.offlineMode.blackDeployment) {
+      const blackDeployment = extractDeploymentFromMap(
+        state.game.cells,
+        state.game.scale
+      );
+      commit("setOfflineBlackDeployment", blackDeployment);
+      commit("initGameboardForWhite", {
+        scale: state.game.scale,
+        turn: constants.GAME_TURN_WHITE
+      });
+    } else {
+      if (!state.game.offlineMode.whiteDeployment) {
+        const whiteDeployment = rotateCells(
+          extractDeploymentFromMap(
+            rotateCells(state.game.cells),
+            state.game.scale
+          )
+        );
+        commit("setOfflineWhiteDeployment", whiteDeployment);
+      }
+
+      // Merge both deployments into one
+      const mergedCells = mergeDeployments(
+        state.game.offlineMode.blackDeployment,
+        state.game.offlineMode.whiteDeployment,
+        state.game.scale,
+        state.player.turn
+      );
+
+      commit("initOfflineGameState");
+      commit("startGame", mergedCells);
+    }
+  },
   takeTurn: async ({ commit }) => {
     commit("takeTurn");
   },
@@ -185,6 +227,7 @@ export const actions = {
       if (isUnitOwner(state, row, col)) {
         if (state.game.status === constants.GAME_STATUS_INIT) {
           if (isMovable(state, row, col) === true) {
+            console.log("yest it is");
             commit("markNextMove", { row, col });
             dispatch("moveUnit");
           }
@@ -253,15 +296,25 @@ export const mutations = {
   setUnitConfigDialog: (state, { toggle }) => {
     state.game.playerInAction.action.unitConfigDialog = toggle;
   },
+  playOfflineMode: state => {
+    state.game.offlineMode.playing = true;
+  },
   initGame: (state, { scale, turn }) => {
     state.game.turn = constants.GAME_TURN_BLACK;
     state.game.scale = scale;
     state.game.status = constants.GAME_STATUS_INIT;
+    state.game.offlineMode.blackDeployment = null;
+    state.game.offlineMode.whiteDeployment = null;
     const cells = generateGameMap(scale, state.player.profile.name, turn);
     Vue.set(state.game, "cells", cells);
     // FIXME: Turn must be decided in advance
-    state.player.turn = constants.GAME_TURN_BLACK;
-    state.opponent.turn = constants.GAME_TURN_WHITE;
+    if (turn == constants.GAME_TURN_BLACK) {
+      state.player.turn = constants.GAME_TURN_BLACK;
+      state.opponent.turn = constants.GAME_TURN_WHITE;
+    } else {
+      state.player.turn = constants.GAME_TURN_WHITE;
+      state.opponent.turn = constants.GAME_TURN_BLACK;
+    }
     state.player.storage = {
       units: [],
       selectedUnitIndex: -1,
@@ -273,6 +326,18 @@ export const mutations = {
       speeds: 10
     };
     initializePlayerActionStatus(state, turn);
+  },
+  initGameboardForWhite: (state, { scale, turn }) => {
+    const cells = rotateCells(
+      generateGameMap(scale, state.opponent.profile.name, turn)
+    );
+    Vue.set(state.game, "cells", cells);
+    state.game.turn = constants.GAME_TURN_WHITE;
+    initializePlayerActionStatus(state);
+  },
+  initOfflineGameState: state => {
+    state.game.turn = constants.GAME_TURN_BLACK;
+    initializePlayerActionStatus(state);
   },
   startGame: (state, mergedCells) => {
     state.game.cells = JSON.parse(JSON.stringify(mergedCells));
@@ -424,7 +489,11 @@ export const mutations = {
     Vue.set(cell[col].unit.moves, direction, speed - 1);
     Vue.set(state.game.cells, row, cell);
     state.game.playerInAction.storage.speeds++;
-  }
+  },
+  setOfflineBlackDeployment: (state, deployment) =>
+    (state.game.offlineMode.blackDeployment = deployment),
+  setOfflineWhiteDeployment: (state, deployment) =>
+    (state.game.offlineMode.whiteDeployment = deployment)
 };
 
 const generateGameMap = (scale, playerName, turn) => {
@@ -577,11 +646,17 @@ const getOpponentMoves = moves => {
 };
 
 const canDeployUnit = (state, row) => {
-  if (state.game.status !== constants.GAME_STATUS_PLAYING) {
-    if (row < constants.gamePresets[state.game.scale].deploymentArea)
-      return false;
-  }
-  return true;
+  if (
+    state.game.offlineMode.playing &&
+    state.game.turn === constants.GAME_TURN_WHITE
+  )
+    return row <
+      state.game.scale - constants.gamePresets[state.game.scale].deploymentArea
+      ? true
+      : false;
+  return row < constants.gamePresets[state.game.scale].deploymentArea
+    ? false
+    : true;
 };
 
 const isMovable = (state, row, col) => {
@@ -589,6 +664,11 @@ const isMovable = (state, row, col) => {
   if (!state.game.cells[row][col].movable) return false;
 
   if (state.game.status === constants.GAME_STATUS_INIT) {
+    console.log(
+      row,
+      state.game.scale,
+      constants.gamePresets[state.game.scale].deploymentArea
+    );
     if (canDeployUnit(state, row)) return true;
     else return false;
   }
@@ -648,6 +728,7 @@ const unmarkDeployCells = state => {
 
 const removeUnitInStorage = (array, element) => {
   var index = array.indexOf(element);
+  [];
   if (index > -1) {
     array.splice(index, 1);
   }
@@ -655,11 +736,22 @@ const removeUnitInStorage = (array, element) => {
 
 const markMovableCells = (state, row, col, mark) => {
   if (state.game.status === constants.GAME_STATUS_INIT) {
-    var area = constants.gamePresets[state.game.scale].deploymentArea;
-    var areaRow, areaCol;
-    for (areaRow = area; areaRow < state.game.scale; areaRow++) {
-      for (areaCol = 0; areaCol <= state.game.scale; areaCol++) {
-        markMovableCell(state, row, col, areaRow, areaCol, mark);
+    var area;
+    if (state.game.turn === constants.GAME_TURN_BLACK) {
+      area = constants.gamePresets[state.game.scale].deploymentArea;
+      for (let areaRow = area; areaRow < state.game.scale; areaRow++) {
+        for (let areaCol = 0; areaCol <= state.game.scale; areaCol++) {
+          markMovableCell(state, row, col, areaRow, areaCol, mark);
+        }
+      }
+    } else {
+      area =
+        state.game.scale -
+        constants.gamePresets[state.game.scale].deploymentArea;
+      for (let areaRow = 0; areaRow < area; areaRow++) {
+        for (let areaCol = 0; areaCol <= state.game.scale; areaCol++) {
+          markMovableCell(state, row, col, areaRow, areaCol, mark);
+        }
       }
     }
     return;
@@ -906,7 +998,6 @@ const receiveOpponentDeployment = state => {
 };
 
 const markedOpponentUnit = (cellPlayer, opponentPlayerName) => {
-  console.log(cellPlayer, opponentPlayerName);
   if (cellPlayer === opponentPlayerName) return true;
   else return false;
 };
