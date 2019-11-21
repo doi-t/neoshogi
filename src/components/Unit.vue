@@ -47,9 +47,13 @@ export default {
     },
     getMoves(row, col) {
       if (this.opponentName === this.unit.player) {
-        return this.unit.moves[8 - (row * 3 + col)];
+        return this.unit.moves[8 - (row * 3 + col)] !== 0
+          ? this.unit.moves[8 - (row * 3 + col)]
+          : "";
       } else {
-        return this.unit.moves[row * 3 + col];
+        return this.unit.moves[row * 3 + col] !== 0
+          ? this.unit.moves[row * 3 + col]
+          : "";
       }
     }
   }
