@@ -44,6 +44,9 @@
       <v-col cols="12">
         <v-card>
           <pre>{{ player }}</pre>
+          <pre>{{ opponent }}</pre>
+          <pre>{{ playerInAction }}</pre>
+          <pre>{{ playerNotInAction }}</pre>
           <pre>{{ cells }}</pre>
         </v-card>
       </v-col>
@@ -69,6 +72,9 @@ export default {
   computed: {
     ...mapState({
       player: state => state.db.player,
+      opponent: state => state.db.opponent,
+      playerInAction: state => state.db.game.playerInAction,
+      playerNotInAction: state => state.db.game.playerNotInAction,
       cells: state => state.db.game.cells
     })
   },
