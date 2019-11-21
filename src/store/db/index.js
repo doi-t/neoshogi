@@ -262,7 +262,6 @@ export const mutations = {
     // FIXME: Turn must be decided in advance
     state.player.turn = constants.GAME_TURN_BLACK;
     state.opponent.turn = constants.GAME_TURN_WHITE;
-    initializePlayerActionStatus(state, turn);
     state.player.storage = {
       units: [],
       selectedUnitIndex: -1,
@@ -273,6 +272,7 @@ export const mutations = {
       selectedUnitIndex: -1,
       speeds: 10
     };
+    initializePlayerActionStatus(state, turn);
   },
   startGame: (state, mergedCells) => {
     state.game.cells = JSON.parse(JSON.stringify(mergedCells));
@@ -488,30 +488,73 @@ const initializePlayerActionStatus = state => {
       speedUp: { row: null, col: null, direction: null }
     })
   );
+
   setPlayerProfileInAction(state);
+  if (state.game.status !== constants.GAME_STATUS_INIT) {
+    saveStorageState(state);
+  }
   setPlayerStorageInAction(state);
 };
 
 const setPlayerProfileInAction = state => {
+  const playerProfile = JSON.parse(JSON.stringify(state.player.profile));
+  const opponentProfile = JSON.parse(JSON.stringify(state.opponent.profile));
   state.game.playerInAction.profile =
-    state.game.turn === state.player.turn
-      ? state.player.profile
-      : state.opponent.profile;
+    state.game.turn === state.player.turn ? playerProfile : opponentProfile;
   state.game.playerNotInAction.profile =
-    state.game.turn === state.player.turn
-      ? state.opponent.profile
-      : state.player.profile;
+    state.game.turn === state.player.turn ? opponentProfile : playerProfile;
+};
+
+const saveStorageState = state => {
+  if (
+    state.game.playerInAction.profile.name === state.player.profile.name &&
+    state.game.playerNotInAction.profile.name === state.opponent.profile.name
+  ) {
+    state.player.storage = JSON.parse(
+      JSON.stringify(state.game.playerInAction.storage)
+    );
+    state.opponent.storage = JSON.parse(
+      JSON.stringify(state.game.playerNotInAction.storage)
+    );
+  } else if (
+    state.game.playerInAction.profile.name === state.opponent.profile.name &&
+    state.game.playerNotInAction.profile.name === state.player.profile.name
+  ) {
+    state.player.storage = JSON.parse(
+      JSON.stringify(state.game.playerNotInAction.storage)
+    );
+    state.opponent.storage = JSON.parse(
+      JSON.stringify(state.game.playerInAction.storage)
+    );
+  } else {
+    console.log("Something wrong!");
+  }
 };
 
 const setPlayerStorageInAction = state => {
-  state.game.playerInAction.storage =
-    state.game.turn === state.player.turn
-      ? state.player.storage
-      : state.opponent.storage;
-  state.game.playerNotInAction.storage =
-    state.game.turn === state.player.turn
-      ? state.opponent.storage
-      : state.player.storage;
+  if (
+    state.game.playerInAction.profile.name === state.player.profile.name &&
+    state.game.playerNotInAction.profile.name === state.opponent.profile.name
+  ) {
+    state.game.playerInAction.storage = JSON.parse(
+      JSON.stringify(state.opponent.storage)
+    );
+    state.game.playerNotInAction.storage = JSON.parse(
+      JSON.stringify(state.player.storage)
+    );
+  } else if (
+    state.game.playerInAction.profile.name === state.opponent.profile.name &&
+    state.game.playerNotInAction.profile.name === state.player.profile.name
+  ) {
+    state.game.playerInAction.storage = JSON.parse(
+      JSON.stringify(state.player.storage)
+    );
+    state.game.playerNotInAction.storage = JSON.parse(
+      JSON.stringify(state.opponent.storage)
+    );
+  } else {
+    console.log("Something wrong!");
+  }
 };
 
 const isUnitOwner = (state, row, col) => {
