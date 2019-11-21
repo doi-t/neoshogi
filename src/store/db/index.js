@@ -792,7 +792,7 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
 
   if (
     state.game.playerInAction.action.deploy &&
-    (toCell.unit.player === state.game.playerNotInAction.profile.name ||
+    (toCell.unit.player === state.game.playerInAction.profile.name ||
       toCell.unit.player === state.game.playerNotInAction.profile.name)
   ) {
     return { markedCell: {}, marked: false };
