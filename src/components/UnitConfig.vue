@@ -10,7 +10,7 @@
                 <div
                   class="justify-center align-center text-center"
                   style="font-size: 40px; width: 64px; height: 64px;"
-                >{{ unit.moves[rowIndex * 3 + colIndex] }}</div>
+                >{{ getMoves(rowIndex, colIndex) }}</div>
 
                 <v-overlay :absolute="true" :value="true" v-if="(rowIndex*3 + colIndex) != 4">
                   <div>
@@ -41,8 +41,21 @@ import { mapState } from "vuex";
 export default {
   name: "UnitConfig",
   props: ["row", "col", "unit"],
+  computed: {
+    ...mapState({
+      opponentName: state => state.db.opponent.profile.name
+    })
+  },
   methods: {
+    getMoves(row, col) {
+      if (this.opponentName === this.unit.player) {
+        return this.unit.moves[8 - (row * 3 + col)];
+      } else {
+        return this.unit.moves[row * 3 + col];
+      }
+    },
     increaseSpeed(direction) {
+      if (this.opponentName === this.unit.player) direction = 8 - direction;
       this.$store.dispatch("db/increaseSpeed", {
         row: this.row,
         col: this.col,
@@ -50,6 +63,7 @@ export default {
       });
     },
     decreaseSpeed(direction) {
+      if (this.opponentName === this.unit.player) direction = 8 - direction;
       this.$store.dispatch("db/decreaseSpeed", {
         row: this.row,
         col: this.col,

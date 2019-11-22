@@ -17,8 +17,7 @@
             <v-card-actions>
               <v-btn @click="initiateGame()">initiate</v-btn>
               <v-btn @click="startGame()">startGame</v-btn>
-              <v-btn @click="resetAction()">reset</v-btn>
-              <v-btn @click="moveUnit()">move a unit</v-btn>
+              <v-btn @click="startOfflineGame()">start Offline Game</v-btn>
               <v-btn color="#E53935">Give Up</v-btn>
             </v-card-actions>
           </div>
@@ -44,6 +43,9 @@
       <v-col cols="12">
         <v-card>
           <pre>{{ player }}</pre>
+          <pre>{{ opponent }}</pre>
+          <pre>{{ playerInAction }}</pre>
+          <pre>{{ playerNotInAction }}</pre>
           <pre>{{ cells }}</pre>
         </v-card>
       </v-col>
@@ -69,6 +71,9 @@ export default {
   computed: {
     ...mapState({
       player: state => state.db.player,
+      opponent: state => state.db.opponent,
+      playerInAction: state => state.db.game.playerInAction,
+      playerNotInAction: state => state.db.game.playerNotInAction,
       cells: state => state.db.game.cells
     })
   },
@@ -88,11 +93,8 @@ export default {
     startGame() {
       this.$store.dispatch("db/startGame", this.selectedScale);
     },
-    resetAction() {
-      this.$store.dispatch("db/resetAction");
-    },
-    moveUnit() {
-      this.$store.dispatch("db/moveUnit");
+    startOfflineGame() {
+      this.$store.dispatch("db/startOfflineGame", this.selectedScale);
     }
   }
 };

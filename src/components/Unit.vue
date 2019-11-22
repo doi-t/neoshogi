@@ -1,6 +1,6 @@
 <template>
   <v-container class="pa-2">
-    <v-card class="pa-0" width="48px" height="48px">
+    <v-card :class="getUnitClass()" width="48px" height="48px" :color="getUnitColor()">
       <v-row
         align="center"
         justify="center"
@@ -26,15 +26,34 @@ export default {
   props: ["unit"],
   computed: {
     ...mapState({
-      playerName: state => state.db.player.profile.name
+      playerName: state => state.db.player.profile.name,
+      playerTurn: state => state.db.player.turn,
+      opponentName: state => state.db.opponent.profile.name,
+      opponentTurn: state => state.db.opponent.turn
     })
   },
   methods: {
+    getUnitColor() {
+      if (this.playerName === this.unit.player) return this.playerTurn;
+      else if (this.opponentName === this.unit.player) return this.opponentTurn;
+      else return "gray";
+    },
+    getUnitClass() {
+      if (this.playerName === this.unit.player)
+        return `${this.opponentTurn}--text pa-0`;
+      else if (this.opponentName === this.unit.player)
+        return `${this.playerTurn}--text pa-0`;
+      else return "pa-0";
+    },
     getMoves(row, col) {
-      if (this.playerName !== this.unit.player) {
-        return this.unit.moves[8 - (row * 3 + col)];
+      if (this.opponentName === this.unit.player) {
+        return this.unit.moves[8 - (row * 3 + col)] !== 0
+          ? this.unit.moves[8 - (row * 3 + col)]
+          : "";
       } else {
-        return this.unit.moves[row * 3 + col];
+        return this.unit.moves[row * 3 + col] !== 0
+          ? this.unit.moves[row * 3 + col]
+          : "";
       }
     }
   }

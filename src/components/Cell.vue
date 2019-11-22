@@ -20,9 +20,9 @@
         <v-divider></v-divider>
 
         <v-card-actions>
-          <v-btn color="secondary" text @click="cancelSpeedUp()">Cancel</v-btn>
+          <v-btn color="secondary" text @click="cancelSpeedUp()" :disabled="isInitPhase()">Cancel</v-btn>
           <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="closeDialog()">Speed Up</v-btn>
+          <v-btn color="primary" text @click="closeDialog()" :disabled="isSpeedUp()">Speed Up</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -43,11 +43,13 @@ export default {
   }),
   computed: {
     ...mapState({
-      speeds: state => state.db.player.storage.speeds,
+      speeds: state => state.db.game.playerInAction.storage.speeds,
       gamePhase: state => state.db.game.status,
-      unitConfigDialog: state => state.db.player.action.unitConfigDialog,
-      playerTurn: state => state.db.player.action.turn,
-      gameTurn: state => state.db.game.turn
+      unitConfigDialog: state =>
+        state.db.game.playerInAction.action.unitConfigDialog,
+      playerTurn: state => state.db.game.playerInAction.action.turn,
+      gameTurn: state => state.db.game.turn,
+      speedUp: state => state.db.game.playerInAction.action.speedUp
     }),
     ...mapGetters({
       getCell: "db/getCell",
@@ -57,6 +59,14 @@ export default {
   methods: {
     checkTurn() {
       return this.playerTurn === this.gameTurn ? false : true;
+    },
+    isInitPhase() {
+      return this.gamePhase === constants.GAME_STATUS_INIT ? true : false;
+    },
+    isSpeedUp() {
+      if (this.gamePhase === constants.GAME_STATUS_PLAYING) {
+        return this.speedUp.direction == null ? true : false;
+      }
     },
     updateCell() {
       this.$store.dispatch("db/updateCell", { row: this.row, col: this.col });

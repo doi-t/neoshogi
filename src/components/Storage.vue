@@ -29,9 +29,9 @@ export default {
   components: { Unit },
   computed: {
     ...mapState({
-      units: state => state.db.player.storage.units,
-      speeds: state => state.db.player.storage.speeds,
-      playerTurn: state => state.db.player.action.turn,
+      units: state => state.db.game.playerInAction.storage.units,
+      speeds: state => state.db.game.playerInAction.storage.speeds,
+      playerTurn: state => state.db.game.playerInAction.action.turn,
       gameTurn: state => state.db.game.turn
     }),
     ...mapGetters({

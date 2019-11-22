@@ -4,18 +4,9 @@ import constants from "@/store/db/constants";
 
 export const state = () => ({
   player: {
+    turn: "",
     profile: {
       name: null
-    },
-    action: {
-      turn: "", // "black" or "white"
-      selected: false,
-      selectedCell: { row: null, col: null },
-      marked: false,
-      markedCell: { row: null, col: null },
-      unitConfigDialog: false,
-      deploy: false,
-      speedUp: { row: null, col: null, direction: null }
     },
     storage: {
       units: [],
@@ -24,18 +15,9 @@ export const state = () => ({
     }
   },
   opponent: {
+    turn: "",
     profile: {
       name: null
-    },
-    action: {
-      turn: "", // "black" or "white"
-      selected: false,
-      selectedCell: { row: null, col: null },
-      marked: false,
-      markedCell: { row: null, col: null },
-      unitConfigDialog: false,
-      deploy: false,
-      speedUp: { row: null, col: null, direction: null }
     },
     storage: {
       units: [],
@@ -44,10 +26,55 @@ export const state = () => ({
     }
   },
   game: {
+    offlineMode: {
+      playing: false,
+      blackDeployment: null,
+      whiteDeployment: null
+    },
     status: constants.GAME_STATUS_INIT,
     scale: 0,
     cells: [],
-    turn: constants.GAME_TURN_BLACK
+    turn: constants.GAME_TURN_BLACK,
+    playerInAction: {
+      profile: {
+        name: null
+      },
+      action: {
+        turn: "", // "black" or "white"
+        selected: false,
+        selectedCell: { row: null, col: null },
+        marked: false,
+        markedCell: { row: null, col: null },
+        unitConfigDialog: false,
+        deploy: false,
+        speedUp: { row: null, col: null, direction: null }
+      },
+      storage: {
+        units: [],
+        selectedUnitIndex: -1,
+        speeds: 0
+      }
+    },
+    playerNotInAction: {
+      profile: {
+        name: null
+      },
+      action: {
+        turn: "", // "black" or "white"
+        selected: false,
+        selectedCell: { row: null, col: null },
+        marked: false,
+        markedCell: { row: null, col: null },
+        unitConfigDialog: false,
+        deploy: false,
+        speedUp: { row: null, col: null, direction: null }
+      },
+      storage: {
+        units: [],
+        selectedUnitIndex: -1,
+        speeds: 0
+      }
+    }
   }
 });
 
@@ -62,8 +89,9 @@ export const getters = {
     return "blue";
   },
   getUnitInStorageColor: state => index => {
-    if (state.player.storage.selectedUnitIndex === index) return "red";
-    return "";
+    return state.game.playerInAction.storage.selectedUnitIndex === index
+      ? "red"
+      : "";
   }
 };
 
@@ -106,10 +134,47 @@ export const actions = {
       myDeployment,
       opponentDeployment,
       state.game.scale,
-      state.player.action.turn
+      state.player.turn
     );
 
     commit("startGame", mergedCells);
+  },
+  startOfflineGame: async ({ commit, state, dispatch }) => {
+    dispatch("resetAction");
+    commit("playOfflineMode");
+
+    if (!state.game.offlineMode.blackDeployment) {
+      const blackDeployment = extractDeploymentFromMap(
+        state.game.cells,
+        state.game.scale
+      );
+      commit("setOfflineBlackDeployment", blackDeployment);
+      commit("initGameboardForWhite", {
+        scale: state.game.scale,
+        turn: constants.GAME_TURN_WHITE
+      });
+    } else {
+      if (!state.game.offlineMode.whiteDeployment) {
+        const whiteDeployment = rotateCells(
+          extractDeploymentFromMap(
+            rotateCells(state.game.cells),
+            state.game.scale
+          )
+        );
+        commit("setOfflineWhiteDeployment", whiteDeployment);
+      }
+
+      // Merge both deployments into one
+      const mergedCells = mergeDeployments(
+        state.game.offlineMode.blackDeployment,
+        state.game.offlineMode.whiteDeployment,
+        state.game.scale,
+        state.player.turn
+      );
+
+      commit("initOfflineGameState");
+      commit("startGame", mergedCells);
+    }
   },
   takeTurn: async ({ commit }) => {
     commit("takeTurn");
@@ -125,12 +190,13 @@ export const actions = {
     commit("resetMarkAction");
   },
   updateCell: async ({ commit, state, dispatch }, { row, col }) => {
-    if (state.player.action.deploy) {
-      const numOfUnitsInStorage = state.player.storage.units.length;
+    if (state.game.playerInAction.action.deploy) {
+      const numOfUnitsInStorage =
+        state.game.playerInAction.storage.units.length;
       if (
         0 <
-          state.player.storage.selectedUnitIndex <
-          state.player.storage.units.length &&
+          state.game.playerInAction.storage.selectedUnitIndex <
+          state.game.playerInAction.storage.units.length &&
         state.game.cells[row][col].movable
       ) {
         commit("dropUnit", { row, col });
@@ -140,7 +206,9 @@ export const actions = {
       commit("resetMarkAction");
       commit("unmarkDeployCells");
       commit("unselectUnitInStorage");
-      if (state.player.storage.units.length !== numOfUnitsInStorage) {
+      if (
+        state.game.playerInAction.storage.units.length !== numOfUnitsInStorage
+      ) {
         return;
       }
     }
@@ -151,11 +219,11 @@ export const actions = {
       commit("setUnitConfigDialog", { toggle: true });
     } else if (state.game.cells[row][col].marked) {
       dispatch("moveUnit");
-    } else if (!state.player.action.selected) {
+    } else if (!state.game.playerInAction.action.selected) {
       if (isUnitOwner(state, row, col)) {
         commit("selectCell", { row, col });
       }
-    } else if (state.player.action.selected) {
+    } else if (state.game.playerInAction.action.selected) {
       if (isUnitOwner(state, row, col)) {
         if (state.game.status === constants.GAME_STATUS_INIT) {
           if (isMovable(state, row, col) === true) {
@@ -171,7 +239,9 @@ export const actions = {
         if (isMovable(state, row, col) === true) {
           if (state.game.cells[row][col].unit.role === constants.PIECE_KING) {
             commit("endGame");
-            console.log("You win!");
+            console.log(
+              `${state.game.playerInAction.profile.name} won the game!`
+            );
           }
           if (isOpponentUnit(state, row, col)) commit("takeUnit", { row, col });
           commit("markNextMove", { row, col });
@@ -191,7 +261,7 @@ export const actions = {
   },
   increaseSpeed: async ({ commit, state }, { row, col, direction }) => {
     if (state.game.cells[row][col].unit.role === constants.PIECE_KING) return;
-    if (state.player.storage.speeds > 0) {
+    if (state.game.playerInAction.storage.speeds > 0) {
       commit("increaseSpeed", { row, col, direction });
     }
   },
@@ -203,14 +273,13 @@ export const actions = {
   },
   cancelSpeedUp: async ({ state, dispatch }, { row, col }) => {
     if (
-      state.player.action.speedUp.row === row &&
-      state.player.action.speedUp.col === col
+      state.game.playerInAction.action.speedUp.row === row &&
+      state.game.playerInAction.action.speedUp.col === col
     ) {
-      console.log("canceling...");
       dispatch("decreaseSpeed", {
         row: row,
         col: col,
-        direction: state.player.action.speedUp.direction
+        direction: state.game.playerInAction.action.speedUp.direction
       });
     }
   }
@@ -224,15 +293,27 @@ export const mutations = {
     state.opponent.profile.name = name;
   },
   setUnitConfigDialog: (state, { toggle }) => {
-    state.player.action.unitConfigDialog = toggle;
+    state.game.playerInAction.action.unitConfigDialog = toggle;
+  },
+  playOfflineMode: state => {
+    state.game.offlineMode.playing = true;
   },
   initGame: (state, { scale, turn }) => {
     state.game.turn = constants.GAME_TURN_BLACK;
     state.game.scale = scale;
     state.game.status = constants.GAME_STATUS_INIT;
+    state.game.offlineMode.blackDeployment = null;
+    state.game.offlineMode.whiteDeployment = null;
     const cells = generateGameMap(scale, state.player.profile.name, turn);
     Vue.set(state.game, "cells", cells);
-    initializePlayerAndOpponentAction(state, turn);
+    // FIXME: Turn must be decided in advance
+    if (turn == constants.GAME_TURN_BLACK) {
+      state.player.turn = constants.GAME_TURN_BLACK;
+      state.opponent.turn = constants.GAME_TURN_WHITE;
+    } else {
+      state.player.turn = constants.GAME_TURN_WHITE;
+      state.opponent.turn = constants.GAME_TURN_BLACK;
+    }
     state.player.storage = {
       units: [],
       selectedUnitIndex: -1,
@@ -243,45 +324,62 @@ export const mutations = {
       selectedUnitIndex: -1,
       speeds: 10
     };
+    initializePlayerActionStatus(state, turn);
+  },
+  initGameboardForWhite: (state, { scale, turn }) => {
+    const cells = rotateCells(
+      generateGameMap(scale, state.opponent.profile.name, turn)
+    );
+    Vue.set(state.game, "cells", cells);
+    state.game.turn = constants.GAME_TURN_WHITE;
+    initializePlayerActionStatus(state);
+  },
+  initOfflineGameState: state => {
+    state.game.turn = constants.GAME_TURN_BLACK;
+    initializePlayerActionStatus(state);
   },
   startGame: (state, mergedCells) => {
     state.game.cells = JSON.parse(JSON.stringify(mergedCells));
     state.game.status = constants.GAME_STATUS_PLAYING;
   },
   takeTurn: state => {
-    state.game.turn =
-      state.game.turn === constants.GAME_TURN_BLACK
-        ? constants.GAME_TURN_WHITE
-        : constants.GAME_TURN_BLACK;
-    initializePlayerAndOpponentAction(state, state.player.action.turn);
+    if (state.game.status === constants.GAME_STATUS_PLAYING) {
+      state.game.turn =
+        state.game.turn === constants.GAME_TURN_BLACK
+          ? constants.GAME_TURN_WHITE
+          : constants.GAME_TURN_BLACK;
+      initializePlayerActionStatus(state);
+    }
   },
   selectUnitInStorage: (state, index) => {
-    state.player.action.deploy = true;
-    state.player.storage.selectedUnitIndex = index;
+    state.game.playerInAction.action.deploy = true;
+    state.game.playerInAction.storage.selectedUnitIndex = index;
     markDeployCells(state);
   },
   unselectUnitInStorage: state => {
-    state.player.action.deploy = false;
-    state.player.storage.selectedUnitIndex = -1;
+    state.game.playerInAction.action.deploy = false;
+    state.game.playerInAction.storage.selectedUnitIndex = -1;
   },
   unmarkDeployCells: state => {
     unmarkDeployCells(state);
-    state.player.action.deploy = false;
+    state.game.playerInAction.action.deploy = false;
   },
   dropUnit: (state, { row, col }) => {
     // Drop a unit in the storage to a selected cell
     // The validation should be done in advance
     const selectedUnit =
-      state.player.storage.units[state.player.storage.selectedUnitIndex];
+      state.game.playerInAction.storage.units[
+        state.game.playerInAction.storage.selectedUnitIndex
+      ];
     state.game.cells[row][col].unit = selectedUnit;
-    removeUnitInStorage(state.player.storage.units, selectedUnit);
+    removeUnitInStorage(state.game.playerInAction.storage.units, selectedUnit);
     state.game.cells[row][col].selected = false;
     state.game.cells[row][col].marked = false;
     state.game.cells[row][col].movable = false;
 
     // reset deploy action status
     unmarkDeployCells(state);
-    state.player.storage.selectedUnitIndex = -1;
+    state.game.playerInAction.storage.selectedUnitIndex = -1;
   },
   endGame: state => {
     state.game.status = constants.GAME_STATUS_END;
@@ -291,43 +389,43 @@ export const mutations = {
     v[col].selected = true;
     Vue.set(state.game.cells, row, v);
     markMovableCells(state, row, col, true);
-    state.player.action.selected = true;
-    state.player.action.selectedCell = { row: row, col: col };
+    state.game.playerInAction.action.selected = true;
+    state.game.playerInAction.action.selectedCell = { row: row, col: col };
   },
   markNextMove: (state, { row, col }) => {
     // Reset the previous marked status
-    if (state.player.action.marked) {
-      state.game.cells[state.player.action.markedCell.row][
-        state.player.action.markedCell.col
+    if (state.game.playerInAction.action.marked) {
+      state.game.cells[state.game.playerInAction.action.markedCell.row][
+        state.game.playerInAction.action.markedCell.col
       ].marked = false;
     }
     var v = state.game.cells[row].slice(0);
     v[col].marked = true;
     Vue.set(state.game.cells, row, v);
-    state.player.action.marked = true;
-    state.player.action.markedCell = { row: row, col: col };
+    state.game.playerInAction.action.marked = true;
+    state.game.playerInAction.action.markedCell = { row: row, col: col };
   },
   resetSelectAction: state => {
-    if (!state.player.action.selected) return;
-    const row = state.player.action.selectedCell.row;
-    const col = state.player.action.selectedCell.col;
+    if (!state.game.playerInAction.action.selected) return;
+    const row = state.game.playerInAction.action.selectedCell.row;
+    const col = state.game.playerInAction.action.selectedCell.col;
     markMovableCells(state, row, col, false);
     state.game.cells[row][col].selected = false;
-    state.player.action.selected = false;
-    state.player.action.selectedCell = { row: null, col: null };
+    state.game.playerInAction.action.selected = false;
+    state.game.playerInAction.action.selectedCell = { row: null, col: null };
   },
   resetMarkAction: state => {
-    if (!state.player.action.marked) return;
-    const row = state.player.action.markedCell.row;
-    const col = state.player.action.markedCell.col;
+    if (!state.game.playerInAction.action.marked) return;
+    const row = state.game.playerInAction.action.markedCell.row;
+    const col = state.game.playerInAction.action.markedCell.col;
     state.game.cells[row][col].marked = false;
-    state.player.action.marked = false;
-    state.player.action.markedCell = { row: null, col: null };
+    state.game.playerInAction.action.marked = false;
+    state.game.playerInAction.action.markedCell = { row: null, col: null };
   },
   takeUnit: (state, { row, col }) => {
     var cell = state.game.cells[row].slice(0);
-    cell[col].unit.player = state.player.profile.name;
-    state.player.storage.units.push(cell[col].unit);
+    cell[col].unit.player = state.game.playerInAction.profile.name;
+    state.game.playerInAction.storage.units.push(cell[col].unit);
     cell[col].unit = {
       player: "",
       role: "",
@@ -336,10 +434,10 @@ export const mutations = {
     Vue.set(state.game.cells, row, cell);
   },
   moveUnit: state => {
-    const selectedRow = state.player.action.selectedCell.row;
-    const selectedCol = state.player.action.selectedCell.col;
-    const markedRow = state.player.action.markedCell.row;
-    const markedCol = state.player.action.markedCell.col;
+    const selectedRow = state.game.playerInAction.action.selectedCell.row;
+    const selectedCol = state.game.playerInAction.action.selectedCell.col;
+    const markedRow = state.game.playerInAction.action.markedCell.row;
+    const markedCol = state.game.playerInAction.action.markedCell.col;
 
     // Reset movable marks before moving a selected unit
     markMovableCells(state, selectedRow, selectedCol, false);
@@ -354,11 +452,11 @@ export const mutations = {
   increaseSpeed: (state, { row, col, direction }) => {
     if (state.game.status === constants.GAME_STATUS_PLAYING) {
       if (
-        state.player.action.speedUp.row == null &&
-        state.player.action.speedUp.col == null &&
-        state.player.action.speedUp.direction == null
+        state.game.playerInAction.action.speedUp.row == null &&
+        state.game.playerInAction.action.speedUp.col == null &&
+        state.game.playerInAction.action.speedUp.direction == null
       ) {
-        state.player.action.speedUp = { row, col, direction };
+        state.game.playerInAction.action.speedUp = { row, col, direction };
       } else {
         return;
       }
@@ -367,16 +465,20 @@ export const mutations = {
     const speed = cell[col].unit.moves[direction];
     Vue.set(cell[col].unit.moves, direction, speed + 1);
     Vue.set(state.game.cells, row, cell);
-    state.player.storage.speeds--;
+    state.game.playerInAction.storage.speeds--;
   },
   decreaseSpeed: (state, { row, col, direction }) => {
     if (state.game.status === constants.GAME_STATUS_PLAYING) {
       if (
-        state.player.action.speedUp.row === row &&
-        state.player.action.speedUp.col === col &&
-        state.player.action.speedUp.direction === direction
+        state.game.playerInAction.action.speedUp.row === row &&
+        state.game.playerInAction.action.speedUp.col === col &&
+        state.game.playerInAction.action.speedUp.direction === direction
       ) {
-        state.player.action.speedUp = { row: null, col: null, direction: null };
+        state.game.playerInAction.action.speedUp = {
+          row: null,
+          col: null,
+          direction: null
+        };
       } else {
         return;
       }
@@ -385,8 +487,12 @@ export const mutations = {
     const speed = cell[col].unit.moves[direction];
     Vue.set(cell[col].unit.moves, direction, speed - 1);
     Vue.set(state.game.cells, row, cell);
-    state.player.storage.speeds++;
-  }
+    state.game.playerInAction.storage.speeds++;
+  },
+  setOfflineBlackDeployment: (state, deployment) =>
+    (state.game.offlineMode.blackDeployment = deployment),
+  setOfflineWhiteDeployment: (state, deployment) =>
+    (state.game.offlineMode.whiteDeployment = deployment)
 };
 
 const generateGameMap = (scale, playerName, turn) => {
@@ -422,56 +528,134 @@ const generateGameMap = (scale, playerName, turn) => {
   return cells;
 };
 
-const initializePlayerAndOpponentAction = (state, turn) => {
-  state.player.action = {
-    turn: turn,
-    selected: false,
-    selectedCell: { row: null, col: null },
-    marked: false,
-    markedCell: { row: null, col: null },
-    unitConfigDialog: false,
-    deploy: false,
-    speedUp: { row: null, col: null, direction: null }
-  };
-  state.opponent.action = {
-    turn:
-      turn === constants.GAME_TURN_BLACK
-        ? constants.GAME_TURN_WHITE
-        : constants.GAME_TURN_BLACK,
-    selected: false,
-    selectedCell: { row: null, col: null },
-    marked: false,
-    markedCell: { row: null, col: null },
-    unitConfigDialog: false,
-    deploy: false,
-    speedUp: { row: null, col: null, direction: null }
-  };
+const initializePlayerActionStatus = state => {
+  state.game.playerInAction.action = JSON.parse(
+    JSON.stringify({
+      turn: state.game.turn,
+      selected: false,
+      selectedCell: { row: null, col: null },
+      marked: false,
+      markedCell: { row: null, col: null },
+      unitConfigDialog: false,
+      deploy: false,
+      speedUp: { row: null, col: null, direction: null }
+    })
+  );
+  state.game.playerNotInAction.action = JSON.parse(
+    JSON.stringify({
+      turn:
+        state.game.turn === constants.GAME_TURN_BLACK
+          ? constants.GAME_TURN_WHITE
+          : constants.GAME_TURN_BLACK,
+      selected: false,
+      selectedCell: { row: null, col: null },
+      marked: false,
+      markedCell: { row: null, col: null },
+      unitConfigDialog: false,
+      deploy: false,
+      speedUp: { row: null, col: null, direction: null }
+    })
+  );
+
+  setPlayerProfileInAction(state);
+  if (state.game.status !== constants.GAME_STATUS_INIT) {
+    saveStorageState(state);
+  }
+  setPlayerStorageInAction(state);
+};
+
+const setPlayerProfileInAction = state => {
+  const playerProfile = JSON.parse(JSON.stringify(state.player.profile));
+  const opponentProfile = JSON.parse(JSON.stringify(state.opponent.profile));
+  state.game.playerInAction.profile =
+    state.game.turn === state.player.turn ? playerProfile : opponentProfile;
+  state.game.playerNotInAction.profile =
+    state.game.turn === state.player.turn ? opponentProfile : playerProfile;
+};
+
+const saveStorageState = state => {
+  if (
+    state.game.playerInAction.profile.name === state.player.profile.name &&
+    state.game.playerNotInAction.profile.name === state.opponent.profile.name
+  ) {
+    state.player.storage = JSON.parse(
+      JSON.stringify(state.game.playerInAction.storage)
+    );
+    state.opponent.storage = JSON.parse(
+      JSON.stringify(state.game.playerNotInAction.storage)
+    );
+  } else if (
+    state.game.playerInAction.profile.name === state.opponent.profile.name &&
+    state.game.playerNotInAction.profile.name === state.player.profile.name
+  ) {
+    state.player.storage = JSON.parse(
+      JSON.stringify(state.game.playerNotInAction.storage)
+    );
+    state.opponent.storage = JSON.parse(
+      JSON.stringify(state.game.playerInAction.storage)
+    );
+  } else {
+    console.log("Something wrong!");
+  }
+};
+
+const setPlayerStorageInAction = state => {
+  if (
+    state.game.playerInAction.profile.name === state.player.profile.name &&
+    state.game.playerNotInAction.profile.name === state.opponent.profile.name
+  ) {
+    state.game.playerInAction.storage = JSON.parse(
+      JSON.stringify(state.opponent.storage)
+    );
+    state.game.playerNotInAction.storage = JSON.parse(
+      JSON.stringify(state.player.storage)
+    );
+  } else if (
+    state.game.playerInAction.profile.name === state.opponent.profile.name &&
+    state.game.playerNotInAction.profile.name === state.player.profile.name
+  ) {
+    state.game.playerInAction.storage = JSON.parse(
+      JSON.stringify(state.player.storage)
+    );
+    state.game.playerNotInAction.storage = JSON.parse(
+      JSON.stringify(state.opponent.storage)
+    );
+  } else {
+    console.log("Something wrong!");
+  }
 };
 
 const isUnitOwner = (state, row, col) => {
   const unitOwner = state.game.cells[row][col].unit.player;
-  if (unitOwner != state.player.profile.name) {
-    return false;
-  } else {
-    return true;
-  }
+  return unitOwner === state.game.playerInAction.profile.name ? true : false;
 };
 
 const isOpponentUnit = (state, row, col) => {
   const unitOwner = state.game.cells[row][col].unit.player;
-  if (unitOwner != state.opponent.profile.name) {
-    return false;
-  } else {
-    return true;
-  }
+  return unitOwner === state.game.playerNotInAction.profile.name ? true : false;
+};
+
+const isOpponentTurn = state => {
+  return state.opponent.turn === state.game.turn ? true : false;
+};
+
+const getOpponentMoves = moves => {
+  const tmpMoves = JSON.parse(JSON.stringify(moves));
+  return tmpMoves.reverse();
 };
 
 const canDeployUnit = (state, row) => {
-  if (state.game.status !== constants.GAME_STATUS_PLAYING) {
-    if (row < constants.gamePresets[state.game.scale].deploymentArea)
-      return false;
-  }
-  return true;
+  if (
+    state.game.offlineMode.playing &&
+    state.game.turn === constants.GAME_TURN_WHITE
+  )
+    return row <
+      state.game.scale - constants.gamePresets[state.game.scale].deploymentArea
+      ? true
+      : false;
+  return row < constants.gamePresets[state.game.scale].deploymentArea
+    ? false
+    : true;
 };
 
 const isMovable = (state, row, col) => {
@@ -483,17 +667,21 @@ const isMovable = (state, row, col) => {
     else return false;
   }
 
-  const x = row - state.player.action.selectedCell.row;
-  const y = col - state.player.action.selectedCell.col;
+  const x = row - state.game.playerInAction.action.selectedCell.row;
+  const y = col - state.game.playerInAction.action.selectedCell.col;
 
   // A cell other than 9 directions is out of scope.
   if (Math.abs(x) !== Math.abs(y) && x !== 0 && y !== 0) return false;
 
   var distance = Math.round(Math.sqrt(x * x + y * y));
   if (Math.abs(x) === Math.abs(y)) distance = Math.abs(x);
-  const sRow = state.player.action.selectedCell.row;
-  const sCol = state.player.action.selectedCell.col;
-  const moves = state.game.cells[sRow][sCol].unit.moves;
+  const sRow = state.game.playerInAction.action.selectedCell.row;
+  const sCol = state.game.playerInAction.action.selectedCell.col;
+
+  const moves = isOpponentTurn(state)
+    ? getOpponentMoves(state.game.cells[sRow][sCol].unit.moves)
+    : state.game.cells[sRow][sCol].unit.moves;
+
   if (x < 0 && y < 0) {
     if (distance > moves[constants.UPLEFT]) return false;
   } else if (x < 0 && y === 0) {
@@ -534,6 +722,7 @@ const unmarkDeployCells = state => {
 
 const removeUnitInStorage = (array, element) => {
   var index = array.indexOf(element);
+  [];
   if (index > -1) {
     array.splice(index, 1);
   }
@@ -541,17 +730,31 @@ const removeUnitInStorage = (array, element) => {
 
 const markMovableCells = (state, row, col, mark) => {
   if (state.game.status === constants.GAME_STATUS_INIT) {
-    var area = constants.gamePresets[state.game.scale].deploymentArea;
-    var areaRow, areaCol;
-    for (areaRow = area; areaRow < state.game.scale; areaRow++) {
-      for (areaCol = 0; areaCol <= state.game.scale; areaCol++) {
-        markMovableCell(state, row, col, areaRow, areaCol, mark);
+    var area;
+    if (state.game.turn === constants.GAME_TURN_BLACK) {
+      area = constants.gamePresets[state.game.scale].deploymentArea;
+      for (let areaRow = area; areaRow < state.game.scale; areaRow++) {
+        for (let areaCol = 0; areaCol <= state.game.scale; areaCol++) {
+          markMovableCell(state, row, col, areaRow, areaCol, mark);
+        }
+      }
+    } else {
+      area =
+        state.game.scale -
+        constants.gamePresets[state.game.scale].deploymentArea;
+      for (let areaRow = 0; areaRow < area; areaRow++) {
+        for (let areaCol = 0; areaCol <= state.game.scale; areaCol++) {
+          markMovableCell(state, row, col, areaRow, areaCol, mark);
+        }
       }
     }
     return;
   }
 
-  const moves = state.game.cells[row][col].unit.moves;
+  const moves = isOpponentTurn(state)
+    ? getOpponentMoves(state.game.cells[row][col].unit.moves)
+    : state.game.cells[row][col].unit.moves;
+
   var direction, n;
   for (direction = 0; direction < moves.length; direction++) {
     var speed = moves[direction];
@@ -564,7 +767,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -576,7 +782,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -588,7 +797,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -600,7 +812,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -612,7 +827,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -624,7 +842,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -636,7 +857,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -648,7 +872,10 @@ const markMovableCells = (state, row, col, mark) => {
         cellPlayer = rst.markedCell.unit.player;
         if (
           mark === true &&
-          markedOpponentUnit(cellPlayer, state.opponent.profile.name)
+          markedOpponentUnit(
+            cellPlayer,
+            state.game.playerNotInAction.profile.name
+          )
         )
           break;
       }
@@ -665,8 +892,9 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
 
   const fromCell = state.game.cells[fromRow][fromCol];
   const toCell = state.game.cells[toRow][toCol];
+
   if (
-    !state.player.action.deploy &&
+    !state.game.playerInAction.action.deploy &&
     state.game.status !== constants.GAME_STATUS_INIT &&
     toCell.unit.player === fromCell.unit.player
   ) {
@@ -674,9 +902,9 @@ const markMovableCell = (state, fromRow, fromCol, toRow, toCol, mark) => {
   }
 
   if (
-    state.player.action.deploy &&
-    (toCell.unit.player === state.player.profile.name ||
-      toCell.unit.player === state.opponent.profile.name)
+    state.game.playerInAction.action.deploy &&
+    (toCell.unit.player === state.game.playerInAction.profile.name ||
+      toCell.unit.player === state.game.playerNotInAction.profile.name)
   ) {
     return { markedCell: {}, marked: false };
   }
@@ -747,7 +975,7 @@ const getEmptyCell = (row, col, scale, turn) => {
 
 const receiveOpponentDeployment = state => {
   var opponentTurn = constants.GAME_TURN_WHITE;
-  if (state.player.action.turn === constants.GAME_TURN_WHITE) {
+  if (state.player.turn === constants.GAME_TURN_WHITE) {
     opponentTurn = constants.GAME_TURN_BLACK;
   }
   const tmpCells = generateGameMap(

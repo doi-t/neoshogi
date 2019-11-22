@@ -30,9 +30,9 @@ export default Object.freeze({
           { role: "", moves: [] },
           { role: "", moves: [] },
           { role: "", moves: [] },
-          { role: this.PIECE_PAWN, moves: [4, 4, 4, 4, "*", 3, 3, 3, 3] },
+          { role: this.PIECE_PAWN, moves: [0, 1, 1, 0, "*", 0, 0, 0, 0] },
           { role: this.PIECE_KING, moves: [1, 1, 1, 1, "*", 1, 1, 1, 1] },
-          { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] }
+          { role: this.PIECE_PAWN, moves: [1, 1, 0, 0, "*", 0, 0, 0, 0] }
         ]
       },
       "5": {
@@ -55,11 +55,8 @@ export default Object.freeze({
           { role: "", moves: [] },
           { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
           { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
-          { role: this.PIECE_PAWN, moves: [3, 4, 2, 1, "*", 4, 2, 3, 1] },
-          {
-            role: this.PIECE_PAWN,
-            moves: [10, 10, 10, 10, "*", 10, 10, 10, 10]
-          },
+          { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+          { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
           { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
           { role: "", moves: [] },
           { role: this.PIECE_PAWN, moves: [1, 1, 1, 1, "*", 1, 0, 1, 0] },
@@ -99,16 +96,13 @@ export default Object.freeze({
           { role: "", moves: [] },
           { role: "", moves: [] },
           { role: "", moves: [] },
-          { role: this.PIECE_PAWN, moves: [3, 4, 2, 1, "*", 4, 2, 3, 1] },
-          {
-            role: this.PIECE_PAWN,
-            moves: [10, 10, 10, 10, "*", 10, 10, 10, 10]
-          },
-          { role: this.PIECE_PAWN, moves: [5, 4, 3, 2, "*", 2, 4, 5, 3] },
-          { role: "", moves: [] },
-          { role: "", moves: [] },
-          { role: "", moves: [] },
-          { role: "", moves: [] },
+          { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+          { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+          { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+          { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+          { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+          { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
+          { role: this.PIECE_PAWN, moves: [0, 1, 0, 0, "*", 0, 0, 0, 0] },
           { role: "", moves: [] },
           { role: "", moves: [] },
           { role: "", moves: [] },
