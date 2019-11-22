@@ -63,6 +63,7 @@ export default {
       });
     },
     decreaseSpeed(direction) {
+      if (this.opponentName === this.unit.player) direction = 8 - direction;
       this.$store.dispatch("db/decreaseSpeed", {
         row: this.row,
         col: this.col,
